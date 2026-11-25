@@ -51,6 +51,21 @@ export function AboutPage() {
                 {t.about.philosophyBody}
               </p>
             </div>
+
+            <div className="pt-8 border-t border-slate-200">
+              <p className="text-xs font-semibold tracking-wider text-[#2563EB] mb-2">
+                {t.about.founderKicker}
+              </p>
+              <h2 className="font-display text-2xl font-bold tracking-tight text-[#0F172A]">
+                {t.about.founderTitle}
+              </h2>
+              <p className="mt-1 text-sm font-semibold text-[#142B4D]">
+                {t.about.founderAffiliation}
+              </p>
+              <p className="mt-3 text-base text-[#64748B] leading-relaxed">
+                {t.about.founderSummary}
+              </p>
+            </div>
           </div>
 
           <div className="lg:col-span-5">
@@ -66,6 +81,16 @@ export function AboutPage() {
               <p className="font-display text-xl font-bold">{t.brand.name}</p>
               <p className="text-sm text-[#60A5FA] mt-1">{t.brand.fullName}</p>
               <p className="text-sm text-slate-300 mt-4">{t.brand.tagline}</p>
+
+              <div className="mt-6 pt-5 border-t border-white/15 w-full">
+                <p className="text-[11px] font-semibold tracking-wider text-[#60A5FA] uppercase">
+                  {t.brand.founderLabel}
+                </p>
+                <p className="mt-1 font-display text-base font-bold text-white">
+                  {t.brand.founderName}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-300">{t.brand.founderRole}</p>
+              </div>
             </div>
           </div>
         </div>

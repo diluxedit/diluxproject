@@ -7,4 +7,7 @@ export const OFFICIAL_CONTACT = {
   tiktokUrl: 'https://www.tiktok.com/@digitalluxuryproject',
   logoPath:
     '/assets/aistudio/e234c0e0498930d16df42529266fedc9_tplv-tiktokx-cropcenter_1080_1080_75ba3403.jpeg',
+  founderName: 'Tomi Setia Ramdani',
+  founderAffiliationId: 'Siswa SMKN 2 Banjar',
+  founderAffiliationEn: 'Student at SMKN 2 Banjar',
 } as const;

@@ -184,6 +184,15 @@ export function HomePage() {
                 <p className="mt-3 text-sm text-slate-300 max-w-xs">
                   {t.brand.tagline}
                 </p>
+                <div className="mt-6 pt-5 border-t border-white/15 w-full">
+                  <p className="text-[11px] font-semibold tracking-wider text-[#60A5FA] uppercase">
+                    {t.brand.founderLabel}
+                  </p>
+                  <p className="mt-1 font-display text-base font-bold text-white">
+                    {t.brand.founderName}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-300">{t.brand.founderRole}</p>
+                </div>
               </div>
             </div>
           </div>

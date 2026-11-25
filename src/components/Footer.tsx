@@ -44,6 +44,10 @@ export function Footer() {
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
               {t.footer.description}
             </p>
+            <p className="text-xs text-slate-300 pt-1">
+              <span className="text-[#60A5FA] font-medium">{t.brand.founderLabel}:</span>{' '}
+              {t.brand.founderName} · {t.brand.founderRole}
+            </p>
           </div>
 
           <div className="lg:col-span-3">

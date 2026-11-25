@@ -5,6 +5,9 @@ export const idLocale = {
     tagline: 'Teknologi Melampaui Batas Biasa.',
     shortDescription:
       'Kelompok teknologi digital yang berfokus pada pengembangan teknologi, solusi digital, inovasi kreatif, pengembangan perangkat lunak, dan eksplorasi teknologi.',
+    founderLabel: 'Pendiri',
+    founderName: 'Tomi Setia Ramdani',
+    founderRole: 'Siswa SMKN 2 Banjar',
     copyright: '© 2026 DILUX GROUP. Seluruh Hak Cipta Dilindungi.',
   },
   nav: {
@@ -92,6 +95,11 @@ export const idLocale = {
     philosophyTitle: 'Filosofi Merek',
     philosophyBody:
       'Kata "Digital Luxury" bagi kami bukanlah tentang kemewahan yang berlebihan, melainkan tentang kualitas pengerjaan yang rapi, ketenangan visual, keandalan sistem, dan pengalaman digital yang terasa matang serta berkelas.',
+    founderKicker: 'Pendiri DILUX GROUP',
+    founderTitle: 'Tomi Setia Ramdani',
+    founderAffiliation: 'Siswa SMKN 2 Banjar',
+    founderSummary:
+      'DILUX GROUP didirikan oleh Tomi Setia Ramdani, Siswa SMKN 2 Banjar, dengan komitmen membangun ekosistem teknologi digital, pengembangan perangkat lunak, serta inovasi kreatif secara terstruktur dan berkelanjutan.',
     visionTitle: 'Visi',
     visionStatement:
       'Menjadi kelompok teknologi digital yang inovatif, adaptif, dan mampu menghadirkan solusi teknologi yang memberikan nilai nyata.',

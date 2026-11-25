@@ -5,6 +5,9 @@ export const enLocale = {
     tagline: 'Technology Beyond Ordinary.',
     shortDescription:
       'A Digital Technology Group focused on technological development, digital solutions, creative innovation, software engineering, and technology exploration.',
+    founderLabel: 'Founder',
+    founderName: 'Tomi Setia Ramdani',
+    founderRole: 'Student at SMKN 2 Banjar',
     copyright: '© 2026 DILUX GROUP. All Rights Reserved.',
   },
   nav: {
@@ -92,6 +95,11 @@ export const enLocale = {
     philosophyTitle: 'Brand Philosophy',
     philosophyBody:
       'To us, "Digital Luxury" is never about excess. It represents thoughtful craftsmanship, visual calm, architectural reliability, and digital experiences that feel deliberate and enduring.',
+    founderKicker: 'Founder of DILUX GROUP',
+    founderTitle: 'Tomi Setia Ramdani',
+    founderAffiliation: 'Student at SMKN 2 Banjar',
+    founderSummary:
+      'DILUX GROUP was founded by Tomi Setia Ramdani, a student at SMKN 2 Banjar, driven by a commitment to building structured, purposeful digital technology solutions, software systems, and creative innovation.',
     visionTitle: 'Vision',
     visionStatement:
       'To become an innovative and adaptive digital technology group delivering meaningful technological solutions.',
