@@ -148,3 +148,18 @@ export interface ContactFormErrors {
   subject?: string;
   message?: string;
 }
+
+export type ContactMessageStatus = 'new' | 'read' | 'replied' | 'archived';
+
+export interface ContactMessageItem {
+  id: string;
+  fullName: string;
+  email: string;
+  subject: string;
+  message: string;
+  language: Language;
+  sourcePath: string;
+  status: ContactMessageStatus;
+  createdAtMillis: number;
+  updatedAtMillis: number;
+}

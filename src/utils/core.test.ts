@@ -106,3 +106,20 @@ test('buildWhatsAppInquiryUrl encodes official number and message payload', () =
   assert.ok(url.includes('Rina'));
   assert.ok(url.includes('Infrastruktur%20Jaringan'));
 });
+
+test('validateContactForm rejects oversized fields beyond database limits', () => {
+  const oversized = validateContactForm(
+    {
+      fullName: 'A'.repeat(125),
+      email: `${'a'.repeat(195)}@example.com`,
+      subject: 'S'.repeat(205),
+      message: 'M'.repeat(4010),
+    },
+    'en'
+  );
+  assert.equal(oversized.isValid, false);
+  assert.ok(oversized.errors.fullName);
+  assert.ok(oversized.errors.email);
+  assert.ok(oversized.errors.subject);
+  assert.ok(oversized.errors.message);
+});

@@ -1,16 +1,23 @@
-import {CheckCircle2, Info, Mail, MessageCircle} from 'lucide-react';
+import {CheckCircle2, Loader2, Mail, MessageCircle, ShieldCheck} from 'lucide-react';
 import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {Button} from '../components/Button';
 import {ContactChannels} from '../components/ContactChannels';
 import {PageHead} from '../components/PageHead';
+import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
 import {OFFICIAL_CONTACT} from '../data/contact';
 import type {ContactFormErrors, ContactFormValues} from '../types';
 import {buildWhatsAppInquiryUrl, validateContactForm} from '../utils/validation';
 
+interface SubmittedMessageRecord {
+  id: string;
+  values: ContactFormValues;
+}
+
 export function ContactPage() {
   const {language, t} = useLanguage();
+  const {submitContactMessage} = useFirebase();
   const [searchParams] = useSearchParams();
 
   const [values, setValues] = useState<ContactFormValues>({
@@ -20,7 +27,9 @@ export function ContactPage() {
     message: '',
   });
   const [errors, setErrors] = useState<ContactFormErrors>({});
-  const [validatedSubmission, setValidatedSubmission] = useState<ContactFormValues | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submittedRecord, setSubmittedRecord] = useState<SubmittedMessageRecord | null>(null);
 
   useEffect(() => {
     const subjectParam = searchParams.get('subject');
@@ -37,18 +46,43 @@ export function ContactPage() {
       if (errors[field]) {
         setErrors((prev) => ({...prev, [field]: undefined}));
       }
+      if (submitError) {
+        setSubmitError('');
+      }
     };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = validateContactForm(values, language);
     if (!result.isValid) {
       setErrors(result.errors);
-      setValidatedSubmission(null);
+      setSubmittedRecord(null);
       return;
     }
+
     setErrors({});
-    setValidatedSubmission({...values});
+    setSubmitError('');
+    setSubmitting(true);
+    try {
+      const snapshotValues: ContactFormValues = {
+        fullName: values.fullName.trim(),
+        email: values.email.trim(),
+        subject: values.subject.trim(),
+        message: values.message.trim(),
+      };
+      const messageId = await submitContactMessage(snapshotValues, language, '/contact');
+      setSubmittedRecord({id: messageId, values: snapshotValues});
+      setValues({
+        fullName: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    } catch {
+      setSubmitError(t.contact.submitError);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const buildMailtoHref = (payload: ContactFormValues) => {
@@ -92,7 +126,10 @@ export function ContactPage() {
             <p className="mt-1.5 text-sm text-[#64748B]">{t.contact.formSubtitle}</p>
 
             <div className="mt-5 rounded-xl bg-[#F1F5F9] border border-slate-200 p-4 flex items-start gap-3">
-              <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
+              <ShieldCheck
+                className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5"
+                aria-hidden="true"
+              />
               <div>
                 <p className="text-xs font-semibold text-[#0F172A]">
                   {t.contact.formNoticeTitle}
@@ -103,7 +140,7 @@ export function ContactPage() {
               </div>
             </div>
 
-            {validatedSubmission ? (
+            {submittedRecord ? (
               <div
                 role="status"
                 className="mt-6 rounded-xl bg-[#F1F5F9] border border-[#2563EB]/30 p-6 space-y-4"
@@ -123,24 +160,28 @@ export function ContactPage() {
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-white border border-slate-200 p-4 text-xs text-[#0F172A] space-y-1">
+                <div className="rounded-lg bg-white border border-slate-200 p-4 text-xs text-[#0F172A] space-y-1.5">
+                  <p>
+                    <span className="text-[#64748B]">{t.contact.referenceIdLabel}: </span>
+                    <span className="font-mono-tabular font-semibold">{submittedRecord.id}</span>
+                  </p>
                   <p>
                     <span className="text-[#64748B]">{t.contact.fullNameLabel}: </span>
-                    <span className="font-medium">{validatedSubmission.fullName}</span>
+                    <span className="font-medium">{submittedRecord.values.fullName}</span>
                   </p>
                   <p>
                     <span className="text-[#64748B]">{t.contact.emailLabel}: </span>
-                    <span className="font-medium">{validatedSubmission.email}</span>
+                    <span className="font-medium">{submittedRecord.values.email}</span>
                   </p>
                   <p>
                     <span className="text-[#64748B]">{t.contact.subjectLabel}: </span>
-                    <span className="font-medium">{validatedSubmission.subject}</span>
+                    <span className="font-medium">{submittedRecord.values.subject}</span>
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <Button
-                    href={buildWhatsAppInquiryUrl(validatedSubmission, language)}
+                    href={buildWhatsAppInquiryUrl(submittedRecord.values, language)}
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="primary"
@@ -148,20 +189,29 @@ export function ContactPage() {
                     <MessageCircle className="w-4 h-4" aria-hidden="true" />
                     <span>{t.contact.sendViaWhatsApp}</span>
                   </Button>
-                  <Button href={buildMailtoHref(validatedSubmission)} variant="outline">
+                  <Button href={buildMailtoHref(submittedRecord.values)} variant="outline">
                     <Mail className="w-4 h-4" aria-hidden="true" />
                     <span>{t.contact.sendViaEmail}</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => setValidatedSubmission(null)}
+                    onClick={() => setSubmittedRecord(null)}
                   >
                     {t.contact.resetForm}
                   </Button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
+              <form onSubmit={(e) => void handleSubmit(e)} noValidate className="mt-6 space-y-5">
+                {submitError && (
+                  <div
+                    role="alert"
+                    className="rounded-lg bg-red-50 border border-red-200 p-3.5 text-xs text-red-700"
+                  >
+                    {submitError}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label
@@ -174,6 +224,7 @@ export function ContactPage() {
                       id="contact-fullName"
                       name="fullName"
                       type="text"
+                      maxLength={120}
                       value={values.fullName}
                       onChange={handleChange('fullName')}
                       placeholder={t.contact.fullNamePlaceholder}
@@ -196,6 +247,7 @@ export function ContactPage() {
                       id="contact-email"
                       name="email"
                       type="email"
+                      maxLength={200}
                       value={values.email}
                       onChange={handleChange('email')}
                       placeholder={t.contact.emailPlaceholder}
@@ -219,6 +271,7 @@ export function ContactPage() {
                     id="contact-subject"
                     name="subject"
                     type="text"
+                    maxLength={200}
                     value={values.subject}
                     onChange={handleChange('subject')}
                     placeholder={t.contact.subjectPlaceholder}
@@ -241,6 +294,7 @@ export function ContactPage() {
                     id="contact-message"
                     name="message"
                     rows={5}
+                    maxLength={4000}
                     value={values.message}
                     onChange={handleChange('message')}
                     placeholder={t.contact.messagePlaceholder}
@@ -253,8 +307,11 @@ export function ContactPage() {
                 </div>
 
                 <div className="pt-2">
-                  <Button type="submit" variant="primary" size="lg">
-                    {t.contact.submitButton}
+                  <Button type="submit" variant="primary" size="lg" disabled={submitting}>
+                    {submitting && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
+                    <span>
+                      {submitting ? t.contact.submittingButton : t.contact.submitButton}
+                    </span>
                   </Button>
                 </div>
               </form>

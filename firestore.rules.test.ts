@@ -7,6 +7,8 @@ import {
   serializeProjectPayload,
   serializeProductPayload,
   serializeArticlePayload,
+  generateContactMessageId,
+  serializeContactMessagePayload,
 } from './src/utils/cmsPayloads';
 import {PROJECTS} from './src/data/projects';
 import {PRODUCTS} from './src/data/products';
@@ -78,5 +80,45 @@ test('sanitizeStringList trims empty entries', () => {
   assert.deepEqual(sanitizeStringList([' React ', '', '   ', 'TypeScript'], 5, 50), [
     'React',
     'TypeScript',
+  ]);
+});
+
+test('generateContactMessageId generates valid Firestore document IDs', () => {
+  const id = generateContactMessageId();
+  assert.equal(ID_PATTERN.test(id), true);
+  assert.ok(id.startsWith('msg-'));
+  assert.ok(id.length <= 128);
+});
+
+test('serializeContactMessagePayload enforces field lengths and schema keys', () => {
+  const payload = serializeContactMessagePayload(
+    {
+      fullName: '  Rani Wijaya  '.repeat(20),
+      email: 'rani@example.com',
+      subject: 'Subjek Proyek '.repeat(30),
+      message: 'Isi pesan panjang '.repeat(400),
+    },
+    'id',
+    '/contact',
+    'new',
+    mockTimestamps
+  );
+
+  assert.ok(payload.fullName.length <= 120);
+  assert.ok(payload.email.length <= 200);
+  assert.ok(payload.subject.length <= 200);
+  assert.ok(payload.message.length <= 4000);
+  assert.equal(payload.language, 'id');
+  assert.equal(payload.status, 'new');
+  assert.deepEqual(Object.keys(payload).sort(), [
+    'createdAt',
+    'email',
+    'fullName',
+    'language',
+    'message',
+    'sourcePath',
+    'status',
+    'subject',
+    'updatedAt',
   ]);
 });

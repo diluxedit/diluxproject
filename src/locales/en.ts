@@ -240,11 +240,11 @@ export const enLocale = {
     emailAction: 'Send Email',
     tiktokTitle: 'Official TikTok',
     tiktokAction: 'Visit TikTok Profile',
-    formTitle: 'Prepare a Message',
-    formSubtitle: 'Use this form to organize your inquiry details.',
-    formNoticeTitle: 'Form Status (Demo Mode — No Backend Connected)',
+    formTitle: 'Send a Message',
+    formSubtitle: 'Share your project requirements, technical questions, or collaboration ideas directly.',
+    formNoticeTitle: 'Direct Database Delivery Enabled',
     formNoticeBody:
-      'This initial release does not include a backend server or database. Submitting this form does not store or transmit messages automatically, but prepares a direct WhatsApp or Email handoff for immediate delivery.',
+      'Messages submitted through this form are stored securely in the DILUX GROUP database for review by our team.',
     fullNameLabel: 'Full Name',
     fullNamePlaceholder: 'Enter your full name',
     emailLabel: 'Email Address',
@@ -253,13 +253,16 @@ export const enLocale = {
     subjectPlaceholder: 'e.g. Web Application or Network Consultation',
     messageLabel: 'Message',
     messagePlaceholder: 'Describe your idea, requirements, or collaboration topic...',
-    submitButton: 'Validate & Prepare Message',
-    demoConfirmedTitle: 'Message Validated (Demo Mode)',
+    submitButton: 'Send Message',
+    submittingButton: 'Sending Message...',
+    submitError: 'Unable to submit your message right now. Please check your connection and try again.',
+    demoConfirmedTitle: 'Message Sent Successfully',
     demoConfirmedBody:
-      'Your input has been validated locally and was not saved to a backend database. To send it directly right now, use the pre-filled WhatsApp or Email button below.',
-    sendViaWhatsApp: 'Send This Message via WhatsApp',
+      'Thank you. Your message has been saved to our system for the DILUX GROUP administrative team to review. For immediate follow-up, you can also open WhatsApp or your email client below.',
+    referenceIdLabel: 'Reference ID',
+    sendViaWhatsApp: 'Follow Up via WhatsApp',
     sendViaEmail: 'Open in Email Client',
-    resetForm: 'Edit Message',
+    resetForm: 'Send Another Message',
   },
   footer: {
     navigationTitle: 'Navigation',
@@ -281,7 +284,21 @@ export const enLocale = {
     loginDescription:
       'Access to the DILUX GROUP database is protected by Google Authentication and Firestore security rules. Only authorized administrator accounts may modify live records.',
     loginButton: 'Sign in with Google',
+    loginRedirectButton: 'Alternative: Sign in via Redirect',
+    openNewTabButton: 'Open Admin Portal in New Tab',
+    iframeNotice:
+      'You are viewing the Admin Portal inside an embedded preview frame. If your browser blocks or immediately closes the Google pop-up, open this page in a new tab.',
     loginError: 'Google sign-in failed. Please allow pop-ups and try again.',
+    loginErrorPopupBlocked:
+      'Your browser blocked the Google sign-in pop-up. Please allow pop-ups for this site or use "Alternative: Sign in via Redirect" below.',
+    loginErrorPopupClosed:
+      'The Google sign-in window closed before completing or was blocked by frame restrictions. Please retry or open the Admin Portal in a new tab.',
+    loginErrorUnauthorizedDomain:
+      'This domain is not authorized in Firebase Authentication (auth/unauthorized-domain). Open the official app URL or add this domain to Authorized domains in Firebase Console.',
+    loginErrorNetwork:
+      'Network error while contacting Google Authentication. Please check your connection and try again.',
+    loginErrorNotAllowed:
+      'Google Sign-In is not enabled in the Firebase Authentication console.',
     deniedTitle: 'Access Denied',
     deniedDescription:
       'Your Google account was authenticated, but this email or UID is not registered as a DILUX GROUP administrator.',
@@ -318,6 +335,7 @@ export const enLocale = {
       products: 'Digital Products',
       insights: 'Insights',
       divisionsServices: 'Divisions & Services',
+      messages: 'Inbox Messages',
       admins: 'Admin Access',
     },
     homeForm: {
@@ -408,6 +426,22 @@ export const enLocale = {
         'Provide a verified Firebase Authentication User UID and Google email address to grant database management permissions.',
       addButton: 'Add Administrator',
       emptyAdditional: 'No additional administrators registered in /admins.',
+    },
+    messagesTab: {
+      title: 'Visitor Inbox Messages',
+      subtitle: 'Messages sent via the Contact page are stored privately and readable only by authorized administrators.',
+      empty: 'No messages found for this filter.',
+      filterAll: 'All Statuses',
+      statusLabels: {
+        new: 'New',
+        read: 'Read',
+        replied: 'Replied',
+        archived: 'Archived',
+      },
+      senderLabel: 'Sender',
+      receivedAtLabel: 'Received',
+      replyEmailButton: 'Reply via Email',
+      statusUpdateLabel: 'Update Status',
     },
   },
 } as const;

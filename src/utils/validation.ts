@@ -17,13 +17,18 @@ export function validateContactForm(
       lang === 'id'
         ? 'Nama lengkap minimal 2 karakter.'
         : 'Full name must be at least 2 characters.';
+  } else if (trimmedName.length > 120) {
+    errors.fullName =
+      lang === 'id'
+        ? 'Nama lengkap maksimal 120 karakter.'
+        : 'Full name must be at most 120 characters.';
   }
 
-  if (!EMAIL_REGEX.test(trimmedEmail)) {
+  if (!EMAIL_REGEX.test(trimmedEmail) || trimmedEmail.length < 5 || trimmedEmail.length > 200) {
     errors.email =
       lang === 'id'
-        ? 'Masukkan alamat email yang valid.'
-        : 'Please enter a valid email address.';
+        ? 'Masukkan alamat email yang valid (maksimal 200 karakter).'
+        : 'Please enter a valid email address (max 200 characters).';
   }
 
   if (trimmedSubject.length < 3) {
@@ -31,6 +36,11 @@ export function validateContactForm(
       lang === 'id'
         ? 'Subjek pesan minimal 3 karakter.'
         : 'Subject must be at least 3 characters.';
+  } else if (trimmedSubject.length > 200) {
+    errors.subject =
+      lang === 'id'
+        ? 'Subjek pesan maksimal 200 karakter.'
+        : 'Subject must be at most 200 characters.';
   }
 
   if (trimmedMessage.length < 10) {
@@ -38,6 +48,11 @@ export function validateContactForm(
       lang === 'id'
         ? 'Pesan minimal 10 karakter agar konteksnya jelas.'
         : 'Message must be at least 10 characters for clear context.';
+  } else if (trimmedMessage.length > 4000) {
+    errors.message =
+      lang === 'id'
+        ? 'Pesan maksimal 4000 karakter.'
+        : 'Message must be at most 4000 characters.';
   }
 
   return {

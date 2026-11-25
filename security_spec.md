@@ -10,6 +10,10 @@
 4. **Schema, Type, Size & Temporal Integrity**:
    - Every document ID on single-doc operations (`get`, `create`, `update`, `delete`) must satisfy `isValidId(id)` (`^[a-zA-Z0-9_\-]+$`, max 128 chars).
    - Every write validates exact required and allowed keys (`keys().hasAll(...) && keys().hasOnly(...)`), string lengths, numeric ranges, enum allowlists, bounded array sizes (`<= 12`), `createdAt == request.time` on create, immutable `createdAt == existing().createdAt` and `updatedAt == request.time` on update, and `affectedKeys().hasOnly(...)` on update.
+5. **Contact Inbox PII Isolation**:
+   - Visitors may `create` documents in `/contactMessages/{messageId}` without authentication, provided all required fields match strict type, format, length bounds (`fullName` 2..120, `email` 5..200 matching email regex, `subject` 3..200, `message` 10..4000), `status == 'new'`, and `createdAt == request.time && updatedAt == request.time`.
+   - `get`, `list`, `update`, and `delete` on `/contactMessages/{messageId}` are strictly restricted to `isAdmin()`. Visitors can never read, enumerate, alter, or delete submitted messages.
+   - Admin updates on `/contactMessages/{messageId}` may only mutate `['status', 'updatedAt']`, leaving sender identity and message body immutable.
 
 ## 2. The "Dirty Dozen" Payloads (Expected: PERMISSION_DENIED)
 1. **Unauthenticated Project Create**: Anonymous user attempts `create /projects/hack-1`.
@@ -24,10 +28,14 @@
 10. **Invalid Enum Category**: Admin attempts `create /products/prod-x` with `category: "Crypto"` (outside allowlist).
 11. **Client-Forged Timestamp**: Admin attempts `create /services/svc-1` with `createdAt` set to a past client timestamp instead of `request.time`.
 12. **Type Poisoning**: Admin attempts `update /projects/proj-1` setting `featured: "yes"` (string instead of bool) or `sortOrder: "first"` (string instead of number).
+13. **Contact Inbox PII Scrape**: Visitor or non-admin user attempts `get` or `list` on `/contactMessages`.
+14. **Contact Message Initial Status Tampering**: Visitor attempts `create /contactMessages/msg-1` with `status: "replied"` or extra shadow field `isSpam: false`.
+15. **Contact Message Oversized Payload / Invalid Email**: Visitor attempts `create /contactMessages/msg-2` with `email: "not-an-email"` or `message` > 4000 chars.
+16. **Contact Message Immutable Content Alter**: Admin attempts `update /contactMessages/msg-1` changing sender `email` or `message` body.
 
 ## 3. Red Team Conflict Report
 - **Identity Spoofing**: Blocked — `updatedBy` / `createdBy` must equal `request.auth.uid`, and `isAdmin()` verifies `email_verified == true`.
-- **State Shortcutting / Enum Poisoning**: Blocked — `category` and `icon` fields validate against explicit allowlists.
+- **State Shortcutting / Enum Poisoning**: Blocked — `category`, `icon`, `language`, and `status` fields validate against explicit allowlists; public message creation forces `status == 'new'`.
 - **Resource Poisoning**: Blocked — `isValidId()` restricts document IDs; every string and array enforces explicit `.size()` bounds.
-- **Shadow Updates**: Blocked — `hasOnly` on `keys()` and `affectedKeys()` rejects any undeclared fields.
-- **PII Leak**: Blocked — `/admins` contains admin email/UID and is restricted strictly to `isAdmin()`.
+- **Shadow Updates**: Blocked — `hasOnly` on `keys()` and `affectedKeys()` rejects any undeclared or immutable fields.
+- **PII Leak**: Blocked — `/admins` and `/contactMessages` contain personal email/contact data and are restricted strictly to `isAdmin()` for all reads.

@@ -1,8 +1,11 @@
 import type {
   ArticleCategory,
   ArticleItem,
+  ContactFormValues,
+  ContactMessageStatus,
   Division,
   DivisionIconName,
+  Language,
   ProductCategory,
   ProductItem,
   ProjectCategory,
@@ -243,6 +246,32 @@ export function serializeServicePayload(
     featured: Boolean(service.featured),
     sortOrder: Math.max(0, Math.min(1000, Number(service.sortOrder ?? 0))),
     updatedBy: uid,
+    createdAt: timestamps.createdAt,
+    updatedAt: timestamps.updatedAt,
+  };
+}
+
+export function generateContactMessageId(): string {
+  const ts = Date.now().toString(36);
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `msg-${ts}-${rand}`;
+}
+
+export function serializeContactMessagePayload(
+  input: ContactFormValues,
+  language: Language,
+  sourcePath: string,
+  status: ContactMessageStatus,
+  timestamps: {createdAt: unknown; updatedAt: unknown}
+) {
+  return {
+    fullName: clampStr(input.fullName, 120),
+    email: clampStr(input.email, 200),
+    subject: clampStr(input.subject, 200),
+    message: clampStr(input.message, 4000),
+    language: language === 'en' ? 'en' : 'id',
+    sourcePath: clampStr(sourcePath, 120, '/contact'),
+    status,
     createdAt: timestamps.createdAt,
     updatedAt: timestamps.updatedAt,
   };

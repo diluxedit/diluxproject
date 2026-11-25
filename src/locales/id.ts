@@ -242,10 +242,10 @@ export const idLocale = {
     tiktokAction: 'Kunjungi Profil TikTok',
     formTitle: 'Kirim Pesan',
     formSubtitle:
-      'Gunakan formulir ini untuk menyusun rincian diskusi Anda.',
-    formNoticeTitle: 'Status Formulir (Mode Demo Tanpa Backend)',
+      'Sampaikan kebutuhan proyek, pertanyaan teknis, atau rencana kolaborasi Anda secara langsung.',
+    formNoticeTitle: 'Pengiriman Pesan Terhubung ke Database',
     formNoticeBody:
-      'Website versi awal ini belum terhubung ke server email atau basis data. Mengirim formulir tidak menyimpan pesan ke server—namun Anda dapat langsung meneruskan pesan yang sudah divalidasi ke WhatsApp resmi kami.',
+      'Setiap pesan yang Anda kirim melalui formulir ini tersimpan aman ke sistem basis data DILUX GROUP untuk ditinjau tim kami.',
     fullNameLabel: 'Nama Lengkap',
     fullNamePlaceholder: 'Masukkan nama lengkap Anda',
     emailLabel: 'Alamat Email',
@@ -254,13 +254,16 @@ export const idLocale = {
     subjectPlaceholder: 'Contoh: Diskusi Pengembangan Web atau Jaringan',
     messageLabel: 'Pesan',
     messagePlaceholder: 'Jelaskan kebutuhan, ide, atau topik kolaborasi Anda...',
-    submitButton: 'Validasi & Siapkan Pesan',
-    demoConfirmedTitle: 'Pesan Tervalidasi (Mode Demo)',
+    submitButton: 'Kirim Pesan',
+    submittingButton: 'Mengirim Pesan...',
+    submitError: 'Pesan gagal dikirim ke server. Periksa koneksi Anda lalu coba lagi.',
+    demoConfirmedTitle: 'Pesan Berhasil Terkirim',
     demoConfirmedBody:
-      'Data formulir Anda telah divalidasi secara lokal dan tidak disimpan ke backend mana pun. Untuk pengiriman nyata sekarang, klik tombol WhatsApp atau Email di bawah ini dengan isi pesan yang sudah disiapkan.',
-    sendViaWhatsApp: 'Kirim Pesan Ini via WhatsApp',
+      'Terima kasih. Pesan Anda telah berhasil disimpan ke sistem kami dan dapat langsung ditindaklanjuti oleh tim administrator DILUX GROUP. Jika membutuhkan respons lebih cepat, Anda juga dapat meneruskannya melalui WhatsApp atau Email.',
+    referenceIdLabel: 'ID Referensi Pesan',
+    sendViaWhatsApp: 'Teruskan via WhatsApp',
     sendViaEmail: 'Buka di Aplikasi Email',
-    resetForm: 'Ubah Pesan',
+    resetForm: 'Kirim Pesan Lain',
   },
   footer: {
     navigationTitle: 'Navigasi',
@@ -282,7 +285,21 @@ export const idLocale = {
     loginDescription:
       'Akses ke basis data DILUX GROUP dilindungi menggunakan autentikasi Google dan aturan keamanan Firestore. Hanya akun administrator terdaftar yang dapat melakukan perubahan data.',
     loginButton: 'Masuk dengan Google',
+    loginRedirectButton: 'Alternatif: Masuk via Pengalihan',
+    openNewTabButton: 'Buka Portal Admin di Tab Baru',
+    iframeNotice:
+      'Portal Admin sedang dibuka di dalam pratinjau/iframe. Jika pop-up Google diblokir atau langsung tertutup oleh browser, buka halaman ini di tab baru.',
     loginError: 'Gagal masuk dengan Google. Pastikan pop-up diizinkan lalu coba lagi.',
+    loginErrorPopupBlocked:
+      'Browser memblokir jendela pop-up login Google. Izinkan pop-up untuk situs ini atau gunakan tombol "Alternatif: Masuk via Pengalihan" di bawah.',
+    loginErrorPopupClosed:
+      'Jendela login Google ditutup sebelum proses masuk selesai atau tertahan oleh pembatasan iframe. Silakan coba lagi atau buka Portal Admin di tab baru.',
+    loginErrorUnauthorizedDomain:
+      'Domain ini belum diotorisasi di Firebase Authentication (auth/unauthorized-domain). Buka melalui URL resmi aplikasi atau tambahkan domain ke Authorized domains di Firebase Console.',
+    loginErrorNetwork:
+      'Koneksi ke server autentikasi Google gagal. Periksa jaringan internet Anda lalu coba lagi.',
+    loginErrorNotAllowed:
+      'Metode login Google belum aktif pada proyek Firebase Authentication.',
     deniedTitle: 'Akses Ditolak',
     deniedDescription:
       'Akun Google Anda berhasil diautentikasi, tetapi email atau UID ini belum terdaftar sebagai administrator DILUX GROUP.',
@@ -319,6 +336,7 @@ export const idLocale = {
       products: 'Produk Digital',
       insights: 'Wawasan',
       divisionsServices: 'Divisi & Layanan',
+      messages: 'Pesan Masuk',
       admins: 'Akses Admin',
     },
     homeForm: {
@@ -409,6 +427,22 @@ export const idLocale = {
         'Masukkan User UID Firebase Authentication dan alamat email Google yang terverifikasi untuk memberikan izin kelola database.',
       addButton: 'Tambahkan Admin',
       emptyAdditional: 'Belum ada administrator tambahan di koleksi /admins.',
+    },
+    messagesTab: {
+      title: 'Kotak Masuk Pesan Pengunjung',
+      subtitle: 'Pesan yang dikirim melalui halaman Kontak tersimpan aman dan hanya dapat dibaca oleh administrator.',
+      empty: 'Belum ada pesan masuk pada filter ini.',
+      filterAll: 'Semua Status',
+      statusLabels: {
+        new: 'Baru',
+        read: 'Dibaca',
+        replied: 'Dibalas',
+        archived: 'Arsip',
+      },
+      senderLabel: 'Pengirim',
+      receivedAtLabel: 'Diterima',
+      replyEmailButton: 'Balas via Email',
+      statusUpdateLabel: 'Ubah Status',
     },
   },
 } as const;

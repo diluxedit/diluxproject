@@ -339,6 +339,33 @@
         "createdAt",
         "updatedAt"
       ]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Visitor contact submission stored privately for authorized DILUX GROUP administrators.",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "email": { "type": "string", "format": "email", "minLength": 5, "maxLength": 200 },
+        "subject": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "message": { "type": "string", "minLength": 10, "maxLength": 4000 },
+        "language": { "type": "string", "enum": ["id", "en"] },
+        "sourcePath": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "status": { "type": "string", "enum": ["new", "read", "replied", "archived"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "fullName",
+        "email",
+        "subject",
+        "message",
+        "language",
+        "sourcePath",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
     }
   },
   "firestore": {
@@ -369,6 +396,10 @@
     "/articles/{articleId}": {
       "schema": { "$ref": "#/entities/Article" },
       "description": "Publicly readable editorial insights articles, editable only by admins."
+    },
+    "/contactMessages/{messageId}": {
+      "schema": { "$ref": "#/entities/ContactMessage" },
+      "description": "Publicly creatable contact messages; strictly readable, updatable (status only), and deletable by authorized admins."
     }
   }
 }

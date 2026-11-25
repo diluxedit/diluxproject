@@ -8,6 +8,7 @@ import {
   Loader2,
   Lock,
   LogOut,
+  Mail,
   Newspaper,
   Package,
   Plus,
@@ -26,6 +27,7 @@ import {useLanguage} from '../context/LanguageContext';
 import type {
   ArticleCategory,
   ArticleItem,
+  ContactMessageStatus,
   Division,
   DivisionIconName,
   ProductCategory,
@@ -37,7 +39,7 @@ import type {
 } from '../types';
 import {type SiteHomeSettings, sanitizeSlug} from '../utils/cmsPayloads';
 
-type AdminTab = 'home' | 'projects' | 'products' | 'insights' | 'divisions' | 'admins';
+type AdminTab = 'home' | 'projects' | 'products' | 'insights' | 'divisions' | 'messages' | 'admins';
 
 const ASSET_IMAGE_OPTIONS = [
   {
@@ -204,7 +206,10 @@ export function AdminPage() {
     authReady,
     isAdmin,
     adminCheckReady,
+    redirectAuthErrorCode,
+    clearRedirectAuthError,
     signInWithGoogle,
+    signInWithGoogleRedirect,
     signOutAdmin,
     homeSettings,
     divisions,
@@ -213,6 +218,7 @@ export function AdminPage() {
     projects,
     articles,
     admins,
+    contactMessages,
     firestoreSyncedCounts,
     seedInitialDataToFirestore,
     saveHomeSettings,
@@ -227,9 +233,12 @@ export function AdminPage() {
     deleteArticle,
     addAdminUser,
     removeAdminUser,
+    updateContactMessageStatus,
+    deleteContactMessage,
   } = useFirebase();
 
   const [activeTab, setActiveTab] = useState<AdminTab>('home');
+  const [messageStatusFilter, setMessageStatusFilter] = useState<'all' | ContactMessageStatus>('all');
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -291,14 +300,81 @@ export function AdminPage() {
     firestoreSyncedCounts.projects === 0 ||
     firestoreSyncedCounts.articles === 0;
 
+  const isInIframe =
+    typeof window !== 'undefined' &&
+    (() => {
+      try {
+        return window.self !== window.top;
+      } catch {
+        return true;
+      }
+    })();
+
+  const formatAuthError = (code: string): string => {
+    switch (code) {
+      case 'auth/popup-blocked':
+        return t.admin.loginErrorPopupBlocked;
+      case 'auth/popup-closed-by-user':
+      case 'auth/cancelled-popup-request':
+        return t.admin.loginErrorPopupClosed;
+      case 'auth/unauthorized-domain':
+        return `${t.admin.loginErrorUnauthorizedDomain} (${
+          typeof window !== 'undefined' ? window.location.hostname : ''
+        })`;
+      case 'auth/network-request-failed':
+        return t.admin.loginErrorNetwork;
+      case 'auth/operation-not-allowed':
+        return t.admin.loginErrorNotAllowed;
+      default:
+        return `${t.admin.loginError} (${code})`;
+    }
+  };
+
+  const effectiveAuthError =
+    authError || (redirectAuthErrorCode ? formatAuthError(redirectAuthErrorCode) : '');
+
   const handleGoogleLogin = async () => {
     setAuthError('');
+    clearRedirectAuthError();
     setAuthLoading(true);
     try {
       await signInWithGoogle();
-    } catch {
-      setAuthError(t.admin.loginError);
+    } catch (err: unknown) {
+      const code =
+        typeof err === 'object' && err !== null && 'code' in err
+          ? String((err as {code?: unknown}).code)
+          : 'auth/unknown';
+      if (code === 'auth/popup-blocked' && !isInIframe) {
+        try {
+          await signInWithGoogleRedirect();
+          return;
+        } catch (redirectErr: unknown) {
+          const rCode =
+            typeof redirectErr === 'object' && redirectErr !== null && 'code' in redirectErr
+              ? String((redirectErr as {code?: unknown}).code)
+              : code;
+          setAuthError(formatAuthError(rCode));
+        }
+      } else {
+        setAuthError(formatAuthError(code));
+      }
     } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleGoogleRedirectLogin = async () => {
+    setAuthError('');
+    clearRedirectAuthError();
+    setAuthLoading(true);
+    try {
+      await signInWithGoogleRedirect();
+    } catch (err: unknown) {
+      const code =
+        typeof err === 'object' && err !== null && 'code' in err
+          ? String((err as {code?: unknown}).code)
+          : 'auth/redirect-failed';
+      setAuthError(formatAuthError(code));
       setAuthLoading(false);
     }
   };
@@ -656,16 +732,31 @@ export function AdminPage() {
                 {t.admin.loginDescription}
               </p>
 
-              {authError && (
-                <div
-                  role="alert"
-                  className="mt-5 p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700"
-                >
-                  {authError}
+              {isInIframe && (
+                <div className="mt-5 p-4 rounded-lg bg-[#F1F5F9] border border-slate-200 space-y-3">
+                  <p className="text-xs text-[#0F172A] leading-relaxed">{t.admin.iframeNotice}</p>
+                  <a
+                    href={typeof window !== 'undefined' ? window.location.href : '/admin'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0B1428] hover:bg-[#142B4D] rounded-lg transition-colors"
+                  >
+                    <span>{t.admin.openNewTabButton}</span>
+                    <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                  </a>
                 </div>
               )}
 
-              <div className="mt-7">
+              {effectiveAuthError && (
+                <div
+                  role="alert"
+                  className="mt-5 p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 leading-relaxed"
+                >
+                  {effectiveAuthError}
+                </div>
+              )}
+
+              <div className="mt-7 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={() => void handleGoogleLogin()}
@@ -679,6 +770,17 @@ export function AdminPage() {
                   )}
                   <span>{t.admin.loginButton}</span>
                 </button>
+
+                {!isInIframe && (
+                  <button
+                    type="button"
+                    onClick={() => void handleGoogleRedirectLogin()}
+                    disabled={authLoading}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 text-xs font-semibold text-[#0F172A] bg-[#F1F5F9] hover:bg-slate-200 border border-slate-200 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
+                  >
+                    <span>{t.admin.loginRedirectButton}</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -742,7 +844,8 @@ export function AdminPage() {
                   <p className="text-xs text-[#64748B] font-mono-tabular">
                     Home: {firestoreSyncedCounts.siteSettings} · Divisi: {firestoreSyncedCounts.divisions}{' '}
                     · Layanan: {firestoreSyncedCounts.services} · Produk: {firestoreSyncedCounts.products}{' '}
-                    · Proyek: {firestoreSyncedCounts.projects} · Wawasan: {firestoreSyncedCounts.articles}
+                    · Proyek: {firestoreSyncedCounts.projects} · Wawasan: {firestoreSyncedCounts.articles}{' '}
+                    · Pesan: {contactMessages.length}
                   </p>
                 </div>
 
@@ -792,6 +895,14 @@ export function AdminPage() {
                       {id: 'products', label: t.admin.tabs.products, icon: Package},
                       {id: 'insights', label: t.admin.tabs.insights, icon: Newspaper},
                       {id: 'divisions', label: t.admin.tabs.divisionsServices, icon: Layers},
+                      {
+                        id: 'messages',
+                        label:
+                          contactMessages.filter((m) => m.status === 'new').length > 0
+                            ? `${t.admin.tabs.messages} (${contactMessages.filter((m) => m.status === 'new').length})`
+                            : t.admin.tabs.messages,
+                        icon: Mail,
+                      },
                       {id: 'admins', label: t.admin.tabs.admins, icon: Users},
                     ] as const
                   ).map((tab) => {
@@ -2993,7 +3104,216 @@ export function AdminPage() {
                 </div>
               )}
 
-              {/* TAB 6: ADMINS */}
+              {/* TAB 6: INBOX MESSAGES */}
+              {activeTab === 'messages' && (
+                <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div>
+                      <h2 className="font-display text-xl font-bold text-[#0F172A]">
+                        {t.admin.messagesTab.title} ({contactMessages.length})
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-[#64748B]">
+                        {t.admin.messagesTab.subtitle}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {(
+                        [
+                          {id: 'all', label: t.admin.messagesTab.filterAll},
+                          {id: 'new', label: t.admin.messagesTab.statusLabels.new},
+                          {id: 'read', label: t.admin.messagesTab.statusLabels.read},
+                          {id: 'replied', label: t.admin.messagesTab.statusLabels.replied},
+                          {id: 'archived', label: t.admin.messagesTab.statusLabels.archived},
+                        ] as const
+                      ).map((flt) => (
+                        <button
+                          key={flt.id}
+                          type="button"
+                          onClick={() => setMessageStatusFilter(flt.id)}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                            messageStatusFilter === flt.id
+                              ? 'bg-[#0B1428] text-white'
+                              : 'bg-[#F1F5F9] text-[#64748B] hover:text-[#0F172A]'
+                          }`}
+                        >
+                          {flt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {(() => {
+                    const filteredMessages =
+                      messageStatusFilter === 'all'
+                        ? contactMessages
+                        : contactMessages.filter((item) => item.status === messageStatusFilter);
+
+                    if (filteredMessages.length === 0) {
+                      return (
+                        <div className="rounded-xl bg-[#F1F5F9] border border-slate-200 p-8 text-center text-sm text-[#64748B]">
+                          {t.admin.messagesTab.empty}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="space-y-4">
+                        {filteredMessages.map((msg) => {
+                          const delKey = `msg-${msg.id}`;
+                          const formattedDate = msg.createdAtMillis
+                            ? new Date(msg.createdAtMillis).toLocaleString(
+                                language === 'id' ? 'id-ID' : 'en-US',
+                                {
+                                  dateStyle: 'medium',
+                                  timeStyle: 'short',
+                                }
+                              )
+                            : '-';
+                          const replySubject = `Re: ${msg.subject}`;
+                          const mailtoHref = `mailto:${encodeURIComponent(
+                            msg.email
+                          )}?subject=${encodeURIComponent(replySubject)}`;
+
+                          return (
+                            <article
+                              key={msg.id}
+                              className="border border-slate-200 rounded-xl p-5 space-y-4 bg-white"
+                            >
+                              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                                <div className="space-y-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B]">
+                                    <span
+                                      className={`font-semibold px-2 py-0.5 rounded ${
+                                        msg.status === 'new'
+                                          ? 'bg-[#2563EB] text-white'
+                                          : msg.status === 'replied'
+                                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                          : 'bg-[#F1F5F9] text-[#475569]'
+                                      }`}
+                                    >
+                                      {t.admin.messagesTab.statusLabels[msg.status]}
+                                    </span>
+                                    <span>·</span>
+                                    <span className="font-mono-tabular">{msg.id}</span>
+                                    <span>·</span>
+                                    <span>
+                                      {t.admin.messagesTab.receivedAtLabel}: {formattedDate}
+                                    </span>
+                                  </div>
+                                  <h3 className="font-display text-base sm:text-lg font-bold text-[#0F172A] pt-1">
+                                    {msg.subject}
+                                  </h3>
+                                  <p className="text-xs sm:text-sm text-[#475569]">
+                                    <span className="text-[#64748B]">
+                                      {t.admin.messagesTab.senderLabel}:{' '}
+                                    </span>
+                                    <span className="font-semibold text-[#0F172A]">
+                                      {msg.fullName}
+                                    </span>{' '}
+                                    &lt;{msg.email}&gt;
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                                  <select
+                                    aria-label={t.admin.messagesTab.statusUpdateLabel}
+                                    value={msg.status}
+                                    disabled={busyAction}
+                                    onChange={(e) => {
+                                      const nextStatus = e.target.value as ContactMessageStatus;
+                                      setBusyAction(true);
+                                      void updateContactMessageStatus(msg.id, nextStatus)
+                                        .then(() => notify('success', t.admin.saveSuccess))
+                                        .catch((err) =>
+                                          notify(
+                                            'error',
+                                            err instanceof Error ? err.message : t.admin.actionError
+                                          )
+                                        )
+                                        .finally(() => setBusyAction(false));
+                                    }}
+                                    className="px-3 py-1.5 text-xs font-semibold text-[#0F172A] bg-[#F1F5F9] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                                  >
+                                    <option value="new">
+                                      {t.admin.messagesTab.statusLabels.new}
+                                    </option>
+                                    <option value="read">
+                                      {t.admin.messagesTab.statusLabels.read}
+                                    </option>
+                                    <option value="replied">
+                                      {t.admin.messagesTab.statusLabels.replied}
+                                    </option>
+                                    <option value="archived">
+                                      {t.admin.messagesTab.statusLabels.archived}
+                                    </option>
+                                  </select>
+
+                                  <a
+                                    href={mailtoHref}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg transition-colors"
+                                  >
+                                    <Mail className="w-3.5 h-3.5" aria-hidden="true" />
+                                    <span>{t.admin.messagesTab.replyEmailButton}</span>
+                                  </a>
+
+                                  {confirmDeleteKey === delKey ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setConfirmDeleteKey(null);
+                                          setBusyAction(true);
+                                          void deleteContactMessage(msg.id)
+                                            .then(() => notify('success', t.admin.deleteSuccess))
+                                            .catch((err) =>
+                                              notify(
+                                                'error',
+                                                err instanceof Error
+                                                  ? err.message
+                                                  : t.admin.actionError
+                                              )
+                                            )
+                                            .finally(() => setBusyAction(false));
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg cursor-pointer"
+                                      >
+                                        {t.admin.confirmDeleteButton}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setConfirmDeleteKey(null)}
+                                        className="px-3 py-1.5 text-xs font-semibold text-[#64748B] border border-slate-200 rounded-lg cursor-pointer"
+                                      >
+                                        {t.admin.cancelButton}
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => setConfirmDeleteKey(delKey)}
+                                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-red-600 border border-red-200 hover:bg-red-50 rounded-lg cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                                      <span>{t.admin.deleteButton}</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="rounded-lg bg-[#F1F5F9] border border-slate-200 p-4 text-sm text-[#0F172A] whitespace-pre-wrap leading-relaxed">
+                                {msg.message}
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* TAB 7: ADMINS */}
               {activeTab === 'admins' && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                   <div className="lg:col-span-7 space-y-6">

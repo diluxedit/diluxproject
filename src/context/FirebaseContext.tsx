@@ -1,8 +1,10 @@
 import {
   GoogleAuthProvider,
   type User,
+  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
 } from 'firebase/auth';
 import {
@@ -13,6 +15,7 @@ import {
   onSnapshot,
   serverTimestamp,
   setDoc,
+  updateDoc,
   writeBatch,
 } from 'firebase/firestore';
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
@@ -26,8 +29,12 @@ import {enLocale} from '../locales/en';
 import {idLocale} from '../locales/id';
 import type {
   ArticleItem,
+  ContactFormValues,
+  ContactMessageItem,
+  ContactMessageStatus,
   Division,
   DivisionId,
+  Language,
   ProductItem,
   ProjectItem,
   ServiceItem,
@@ -36,8 +43,10 @@ import {
   ID_PATTERN,
   type SiteHomeSettings,
   clampStr,
+  generateContactMessageId,
   sanitizeSlug,
   serializeArticlePayload,
+  serializeContactMessagePayload,
   serializeDivisionPayload,
   serializeProductPayload,
   serializeProjectPayload,
@@ -78,7 +87,10 @@ interface FirebaseContextValue {
   authReady: boolean;
   isAdmin: boolean;
   adminCheckReady: boolean;
+  redirectAuthErrorCode: string | null;
+  clearRedirectAuthError: () => void;
   signInWithGoogle: () => Promise<void>;
+  signInWithGoogleRedirect: () => Promise<void>;
   signOutAdmin: () => Promise<void>;
   homeSettings: SiteHomeSettings;
   hasFirestoreHomeSettings: boolean;
@@ -88,6 +100,7 @@ interface FirebaseContextValue {
   projects: ProjectItem[];
   articles: ArticleItem[];
   admins: AdminRecord[];
+  contactMessages: ContactMessageItem[];
   firestoreSyncedCounts: {
     siteSettings: number;
     divisions: number;
@@ -109,6 +122,13 @@ interface FirebaseContextValue {
   deleteArticle: (id: string) => Promise<void>;
   addAdminUser: (uid: string, email: string, label: string) => Promise<void>;
   removeAdminUser: (uid: string) => Promise<void>;
+  submitContactMessage: (
+    values: ContactFormValues,
+    language: Language,
+    sourcePath?: string
+  ) => Promise<string>;
+  updateContactMessageStatus: (id: string, status: ContactMessageStatus) => Promise<void>;
+  deleteContactMessage: (id: string) => Promise<void>;
 }
 
 const FirebaseContext = createContext<FirebaseContextValue | undefined>(undefined);
@@ -148,6 +168,7 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
   const [authReady, setAuthReady] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminCheckReady, setAdminCheckReady] = useState(false);
+  const [redirectAuthErrorCode, setRedirectAuthErrorCode] = useState<string | null>(null);
 
   const [dbHomeSettings, setDbHomeSettings] = useState<SiteHomeSettings | null>(null);
   const [dbDivisions, setDbDivisions] = useState<Division[]>([]);
@@ -156,6 +177,18 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
   const [dbProjects, setDbProjects] = useState<ProjectItem[]>([]);
   const [dbArticles, setDbArticles] = useState<ArticleItem[]>([]);
   const [admins, setAdmins] = useState<AdminRecord[]>([]);
+  const [contactMessages, setContactMessages] = useState<ContactMessageItem[]>([]);
+
+  // Handle Google redirect result if returning from signInWithRedirect
+  useEffect(() => {
+    getRedirectResult(auth).catch((error: unknown) => {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as {code?: unknown}).code)
+          : 'auth/redirect-failed';
+      setRedirectAuthErrorCode(code);
+    });
+  }, []);
 
   // Auth listener
   useEffect(() => {
@@ -374,10 +407,11 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
     };
   }, [authReady]);
 
-  // Admin-only collection listener (only attached when authenticated as Admin)
+  // Admin-only collection listeners (only attached when authenticated as Admin)
   useEffect(() => {
     if (!authReady || !user || !isAdmin) {
       setAdmins([]);
+      setContactMessages([]);
       return;
     }
 
@@ -399,13 +433,54 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
       (error) => handleFirestoreError(error, OperationType.LIST, 'admins')
     );
 
-    return unsubAdmins;
+    const unsubMessages = onSnapshot(
+      collection(db, 'contactMessages'),
+      (snap) => {
+        const list: ContactMessageItem[] = snap.docs.map((item) => {
+          const d = item.data();
+          const createdTs = d.createdAt as {toMillis?: () => number} | undefined;
+          const updatedTs = d.updatedAt as {toMillis?: () => number} | undefined;
+          return {
+            id: item.id,
+            fullName: d.fullName || '',
+            email: d.email || '',
+            subject: d.subject || '',
+            message: d.message || '',
+            language: d.language === 'en' ? 'en' : 'id',
+            sourcePath: d.sourcePath || '/contact',
+            status: d.status || 'new',
+            createdAtMillis: createdTs?.toMillis ? createdTs.toMillis() : 0,
+            updatedAtMillis: updatedTs?.toMillis ? updatedTs.toMillis() : 0,
+          };
+        });
+        list.sort((a, b) => b.createdAtMillis - a.createdAtMillis);
+        setContactMessages(list);
+      },
+      (error) => handleFirestoreError(error, OperationType.LIST, 'contactMessages')
+    );
+
+    return () => {
+      unsubAdmins();
+      unsubMessages();
+    };
   }, [authReady, user, isAdmin]);
 
   const signInWithGoogle = async () => {
+    setRedirectAuthErrorCode(null);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({prompt: 'select_account'});
     await signInWithPopup(auth, provider);
+  };
+
+  const signInWithGoogleRedirect = async () => {
+    setRedirectAuthErrorCode(null);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({prompt: 'select_account'});
+    await signInWithRedirect(auth, provider);
+  };
+
+  const clearRedirectAuthError = () => {
+    setRedirectAuthErrorCode(null);
   };
 
   const signOutAdmin = async () => {
@@ -658,6 +733,46 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
     }
   };
 
+  const submitContactMessage = async (
+    values: ContactFormValues,
+    language: Language,
+    sourcePath = '/contact'
+  ): Promise<string> => {
+    const id = generateContactMessageId();
+    const now = serverTimestamp();
+    const payload = serializeContactMessagePayload(values, language, sourcePath, 'new', {
+      createdAt: now,
+      updatedAt: now,
+    });
+    try {
+      await setDoc(doc(db, 'contactMessages', id), payload);
+      return id;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, `contactMessages/${id}`);
+    }
+  };
+
+  const updateContactMessageStatus = async (id: string, status: ContactMessageStatus) => {
+    requireAdminUid();
+    try {
+      await updateDoc(doc(db, 'contactMessages', id), {
+        status,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `contactMessages/${id}`);
+    }
+  };
+
+  const deleteContactMessage = async (id: string) => {
+    requireAdminUid();
+    try {
+      await deleteDoc(doc(db, 'contactMessages', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `contactMessages/${id}`);
+    }
+  };
+
   const effectiveDivisions = dbDivisions.length > 0 ? dbDivisions : SEED_DIVISIONS;
   const effectiveServices =
     dbServices.length > 0
@@ -682,7 +797,10 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
       authReady,
       isAdmin,
       adminCheckReady,
+      redirectAuthErrorCode,
+      clearRedirectAuthError,
       signInWithGoogle,
+      signInWithGoogleRedirect,
       signOutAdmin,
       homeSettings: dbHomeSettings ?? DEFAULT_HOME_SETTINGS,
       hasFirestoreHomeSettings: Boolean(dbHomeSettings),
@@ -692,6 +810,7 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
       projects: effectiveProjects,
       articles: effectiveArticles,
       admins,
+      contactMessages,
       firestoreSyncedCounts: {
         siteSettings: dbHomeSettings ? 1 : 0,
         divisions: dbDivisions.length,
@@ -713,12 +832,16 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
       deleteArticle,
       addAdminUser,
       removeAdminUser,
+      submitContactMessage,
+      updateContactMessageStatus,
+      deleteContactMessage,
     }),
     [
       user,
       authReady,
       isAdmin,
       adminCheckReady,
+      redirectAuthErrorCode,
       dbHomeSettings,
       effectiveDivisions,
       effectiveServices,
@@ -726,6 +849,7 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
       effectiveProjects,
       effectiveArticles,
       admins,
+      contactMessages,
       dbDivisions.length,
       dbServices.length,
       dbProducts.length,
