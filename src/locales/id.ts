@@ -304,6 +304,12 @@ export const idLocale = {
       'Jendela login Google ditutup sebelum proses masuk selesai atau tertahan oleh pembatasan iframe. Silakan coba lagi atau buka Portal Admin di tab baru.',
     loginErrorUnauthorizedDomain:
       'Domain ini belum diotorisasi di Firebase Authentication (auth/unauthorized-domain). Buka melalui URL resmi aplikasi atau tambahkan domain ke Authorized domains di Firebase Console.',
+    unauthorizedDomainHelp:
+      'Setiap domain hosting eksternal (seperti Vercel) harus didaftarkan di Firebase Authentication → Settings → Authorized domains. Sebagai alternatif langsung, Anda juga dapat masuk lewat URL resmi terotorisasi yang terhubung ke basis data yang sama.',
+    openOfficialAdminButton: 'Masuk lewat URL Resmi Terotorisasi',
+    openFirebaseConsoleButton: 'Buka Pengaturan Firebase Console',
+    copyDomainButton: 'Salin Nama Domain',
+    copiedDomainLabel: 'Domain Tersalin',
     loginErrorNetwork:
       'Koneksi ke server autentikasi Google gagal. Periksa jaringan internet Anda lalu coba lagi.',
     loginErrorNotAllowed:

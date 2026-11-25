@@ -1,5 +1,6 @@
 import {
   Check,
+  Copy,
   Database,
   ExternalLink,
   FolderKanban,
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
+import firebaseConfig from '../../firebase-applet-config.json';
 import {PageHead} from '../components/PageHead';
 import {BOOTSTRAPPED_ADMIN_EMAIL, useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
@@ -240,7 +242,9 @@ export function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('home');
   const [messageStatusFilter, setMessageStatusFilter] = useState<'all' | ContactMessageStatus>('all');
   const [authError, setAuthError] = useState('');
+  const [authErrorCode, setAuthErrorCode] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState(false);
 
   const [statusMessage, setStatusMessage] = useState<{type: 'success' | 'error'; text: string} | null>(
     null
@@ -332,9 +336,28 @@ export function AdminPage() {
 
   const effectiveAuthError =
     authError || (redirectAuthErrorCode ? formatAuthError(redirectAuthErrorCode) : '');
+  const effectiveAuthErrorCode = authErrorCode || redirectAuthErrorCode;
+  const currentHostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  const officialAdminUrl =
+    'https://ais-pre-ucdnkyf5hf4s56scm2hx4k-481567574201.asia-northeast1.run.app/admin';
+  const firebaseAuthSettingsUrl = `https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/settings`;
+
+  const handleCopyHostname = async () => {
+    if (!currentHostname || typeof navigator === 'undefined' || !navigator.clipboard) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentHostname);
+      setCopiedDomain(true);
+      setTimeout(() => setCopiedDomain(false), 2500);
+    } catch {
+      // Clipboard blocked in restricted context
+    }
+  };
 
   const handleGoogleLogin = async () => {
     setAuthError('');
+    setAuthErrorCode(null);
     clearRedirectAuthError();
     setAuthLoading(true);
     try {
@@ -353,9 +376,11 @@ export function AdminPage() {
             typeof redirectErr === 'object' && redirectErr !== null && 'code' in redirectErr
               ? String((redirectErr as {code?: unknown}).code)
               : code;
+          setAuthErrorCode(rCode);
           setAuthError(formatAuthError(rCode));
         }
       } else {
+        setAuthErrorCode(code);
         setAuthError(formatAuthError(code));
       }
     } finally {
@@ -365,6 +390,7 @@ export function AdminPage() {
 
   const handleGoogleRedirectLogin = async () => {
     setAuthError('');
+    setAuthErrorCode(null);
     clearRedirectAuthError();
     setAuthLoading(true);
     try {
@@ -374,6 +400,7 @@ export function AdminPage() {
         typeof err === 'object' && err !== null && 'code' in err
           ? String((err as {code?: unknown}).code)
           : 'auth/redirect-failed';
+      setAuthErrorCode(code);
       setAuthError(formatAuthError(code));
       setAuthLoading(false);
     }
@@ -750,9 +777,52 @@ export function AdminPage() {
               {effectiveAuthError && (
                 <div
                   role="alert"
-                  className="mt-5 p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 leading-relaxed"
+                  className="mt-5 p-4 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 leading-relaxed space-y-3"
                 >
-                  {effectiveAuthError}
+                  <p className="font-semibold">{effectiveAuthError}</p>
+                  {effectiveAuthErrorCode === 'auth/unauthorized-domain' && (
+                    <div className="pt-2 border-t border-red-200/80 space-y-3">
+                      <p className="text-red-700">{t.admin.unauthorizedDomainHelp}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {currentHostname && (
+                          <button
+                            type="button"
+                            onClick={() => void handleCopyHostname()}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0F172A] bg-white hover:bg-slate-50 border border-red-200 rounded-lg cursor-pointer"
+                          >
+                            {copiedDomain ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" aria-hidden="true" />
+                            )}
+                            <span>
+                              {copiedDomain
+                                ? t.admin.copiedDomainLabel
+                                : `${t.admin.copyDomainButton}: ${currentHostname}`}
+                            </span>
+                          </button>
+                        )}
+                        <a
+                          href={firebaseAuthSettingsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#0B1428] hover:bg-[#142B4D] rounded-lg transition-colors"
+                        >
+                          <span>{t.admin.openFirebaseConsoleButton}</span>
+                          <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                        </a>
+                        <a
+                          href={officialAdminUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg transition-colors"
+                        >
+                          <span>{t.admin.openOfficialAdminButton}</span>
+                          <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

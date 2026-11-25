@@ -303,6 +303,12 @@ export const enLocale = {
       'The Google sign-in window closed before completing or was blocked by frame restrictions. Please retry or open the Admin Portal in a new tab.',
     loginErrorUnauthorizedDomain:
       'This domain is not authorized in Firebase Authentication (auth/unauthorized-domain). Open the official app URL or add this domain to Authorized domains in Firebase Console.',
+    unauthorizedDomainHelp:
+      'External hosting domains (such as Vercel) must be added under Firebase Authentication → Settings → Authorized domains. Alternatively, you can sign in directly using the pre-authorized official URL connected to the exact same Firestore database.',
+    openOfficialAdminButton: 'Open Pre-Authorized Official Admin URL',
+    openFirebaseConsoleButton: 'Open Firebase Console Settings',
+    copyDomainButton: 'Copy Current Domain',
+    copiedDomainLabel: 'Domain Copied',
     loginErrorNetwork:
       'Network error while contacting Google Authentication. Please check your connection and try again.',
     loginErrorNotAllowed:
