@@ -1,0 +1,15 @@
+:root {
+  --dilux-navy: #0B1428;
+  --dilux-navy-dark: #142B4D;
+  --dilux-blue: #2563EB;
+  --dilux-blue-light: #60A5FA;
+  --dilux-white: #FFFFFF;
+  --dilux-surface: #F1F5F9;
+  --dilux-text: #0F172A;
+  --dilux-text-muted: #64748B;
+  --dilux-border: #E2E8F0;
+
+  --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}

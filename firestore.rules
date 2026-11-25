@@ -1,0 +1,445 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection probe used on startup
+    match /test/{docId} {
+      allow get: if docId == 'connection';
+    }
+
+    // --- Shared Primitives ---
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isEmailVerified() && request.auth.token.email == 'ramdanitomi6@gmail.com';
+    }
+
+    function isAdmin() {
+      return isEmailVerified() && (
+        isBootstrappedAdmin() ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isStr(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isStringList(val, maxItems, maxItemLen) {
+      return val is list &&
+        val.size() <= maxItems &&
+        (val.size() == 0 || (val[0] is string && val[0].size() <= maxItemLen));
+    }
+
+    function hasValidCreateTimestamps(data) {
+      return data.createdAt == request.time && data.updatedAt == request.time;
+    }
+
+    function hasValidUpdateTimestamps(data) {
+      return data.createdAt == existing().createdAt && data.updatedAt == request.time;
+    }
+
+    // --- Validation Blueprints ---
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'label', 'createdBy', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'email', 'label', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidId(data.uid) &&
+        isStr(data.email, 5, 200) &&
+        isStr(data.label, 1, 120) &&
+        isValidId(data.createdBy) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidSiteHomeSettings(data) {
+      return data.keys().hasAll([
+          'heroEyebrowId', 'heroEyebrowEn', 'heroHeadlineId', 'heroHeadlineEn',
+          'heroDescriptionId', 'heroDescriptionEn', 'introTitleId', 'introTitleEn',
+          'introParagraph1Id', 'introParagraph1En', 'introParagraph2Id', 'introParagraph2En',
+          'ctaHeadlineId', 'ctaHeadlineEn', 'ctaDescriptionId', 'ctaDescriptionEn',
+          'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'heroEyebrowId', 'heroEyebrowEn', 'heroHeadlineId', 'heroHeadlineEn',
+          'heroDescriptionId', 'heroDescriptionEn', 'introTitleId', 'introTitleEn',
+          'introParagraph1Id', 'introParagraph1En', 'introParagraph2Id', 'introParagraph2En',
+          'ctaHeadlineId', 'ctaHeadlineEn', 'ctaDescriptionId', 'ctaDescriptionEn',
+          'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        isStr(data.heroEyebrowId, 1, 120) &&
+        isStr(data.heroEyebrowEn, 1, 120) &&
+        isStr(data.heroHeadlineId, 1, 200) &&
+        isStr(data.heroHeadlineEn, 1, 200) &&
+        isStr(data.heroDescriptionId, 1, 500) &&
+        isStr(data.heroDescriptionEn, 1, 500) &&
+        isStr(data.introTitleId, 1, 150) &&
+        isStr(data.introTitleEn, 1, 150) &&
+        isStr(data.introParagraph1Id, 1, 1000) &&
+        isStr(data.introParagraph1En, 1, 1000) &&
+        isStr(data.introParagraph2Id, 1, 1000) &&
+        isStr(data.introParagraph2En, 1, 1000) &&
+        isStr(data.ctaHeadlineId, 1, 200) &&
+        isStr(data.ctaHeadlineEn, 1, 200) &&
+        isStr(data.ctaDescriptionId, 1, 500) &&
+        isStr(data.ctaDescriptionEn, 1, 500) &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidDivision(data) {
+      return data.keys().hasAll([
+          'slug', 'name', 'shortLabelId', 'shortLabelEn', 'icon',
+          'descriptionId', 'descriptionEn', 'extendedOverviewId', 'extendedOverviewEn',
+          'methodologyId', 'methodologyEn', 'focusAreasId', 'focusAreasEn',
+          'sortOrder', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'slug', 'name', 'shortLabelId', 'shortLabelEn', 'icon',
+          'descriptionId', 'descriptionEn', 'extendedOverviewId', 'extendedOverviewEn',
+          'methodologyId', 'methodologyEn', 'focusAreasId', 'focusAreasEn',
+          'sortOrder', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.slug) &&
+        isStr(data.name, 1, 120) &&
+        isStr(data.shortLabelId, 1, 160) &&
+        isStr(data.shortLabelEn, 1, 160) &&
+        data.icon in ['Code2', 'Server', 'Palette', 'Compass'] &&
+        isStr(data.descriptionId, 1, 600) &&
+        isStr(data.descriptionEn, 1, 600) &&
+        isStr(data.extendedOverviewId, 1, 2000) &&
+        isStr(data.extendedOverviewEn, 1, 2000) &&
+        isStr(data.methodologyId, 1, 1000) &&
+        isStr(data.methodologyEn, 1, 1000) &&
+        isStringList(data.focusAreasId, 12, 120) &&
+        isStringList(data.focusAreasEn, 12, 120) &&
+        data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000 &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidService(data) {
+      return data.keys().hasAll([
+          'number', 'divisionId', 'icon', 'nameId', 'nameEn',
+          'shortDescriptionId', 'shortDescriptionEn', 'scopeDetailsId', 'scopeDetailsEn',
+          'featured', 'sortOrder', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'number', 'divisionId', 'icon', 'nameId', 'nameEn',
+          'shortDescriptionId', 'shortDescriptionEn', 'scopeDetailsId', 'scopeDetailsEn',
+          'featured', 'sortOrder', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        isStr(data.number, 1, 10) &&
+        isValidId(data.divisionId) &&
+        data.icon in ['Globe', 'AppWindow', 'Terminal', 'Network', 'Router', 'Headphones', 'Cpu', 'Layout', 'PenTool', 'Sparkles'] &&
+        isStr(data.nameId, 1, 160) &&
+        isStr(data.nameEn, 1, 160) &&
+        isStr(data.shortDescriptionId, 1, 600) &&
+        isStr(data.shortDescriptionEn, 1, 600) &&
+        isStringList(data.scopeDetailsId, 10, 160) &&
+        isStringList(data.scopeDetailsEn, 10, 160) &&
+        data.featured is bool &&
+        data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000 &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll([
+          'slug', 'isDemo', 'featured', 'name', 'category',
+          'categoryLabelId', 'categoryLabelEn', 'statusId', 'statusEn',
+          'image', 'imageAltId', 'imageAltEn',
+          'shortDescriptionId', 'shortDescriptionEn',
+          'fullDescriptionId', 'fullDescriptionEn',
+          'capabilitiesId', 'capabilitiesEn', 'sortOrder',
+          'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'slug', 'isDemo', 'featured', 'name', 'category',
+          'categoryLabelId', 'categoryLabelEn', 'statusId', 'statusEn',
+          'image', 'imageAltId', 'imageAltEn',
+          'shortDescriptionId', 'shortDescriptionEn',
+          'fullDescriptionId', 'fullDescriptionEn',
+          'capabilitiesId', 'capabilitiesEn', 'sortOrder',
+          'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.slug) &&
+        data.isDemo is bool &&
+        data.featured is bool &&
+        isStr(data.name, 1, 160) &&
+        data.category in ['Software', 'Web Applications', 'Digital Tools', 'Technology Products'] &&
+        isStr(data.categoryLabelId, 1, 80) &&
+        isStr(data.categoryLabelEn, 1, 80) &&
+        isStr(data.statusId, 1, 80) &&
+        isStr(data.statusEn, 1, 80) &&
+        isStr(data.image, 1, 500) &&
+        isStr(data.imageAltId, 1, 240) &&
+        isStr(data.imageAltEn, 1, 240) &&
+        isStr(data.shortDescriptionId, 1, 600) &&
+        isStr(data.shortDescriptionEn, 1, 600) &&
+        isStr(data.fullDescriptionId, 1, 3000) &&
+        isStr(data.fullDescriptionEn, 1, 3000) &&
+        isStringList(data.capabilitiesId, 12, 240) &&
+        isStringList(data.capabilitiesEn, 12, 240) &&
+        data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000 &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll([
+          'slug', 'isDemo', 'featured', 'titleId', 'titleEn', 'category',
+          'categoryLabelId', 'categoryLabelEn', 'divisionId', 'year',
+          'statusId', 'statusEn', 'image', 'imageAltId', 'imageAltEn',
+          'shortDescriptionId', 'shortDescriptionEn', 'overviewId', 'overviewEn',
+          'architectureNotesId', 'architectureNotesEn', 'technologies', 'sortOrder',
+          'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'slug', 'isDemo', 'featured', 'titleId', 'titleEn', 'category',
+          'categoryLabelId', 'categoryLabelEn', 'divisionId', 'year',
+          'statusId', 'statusEn', 'image', 'imageAltId', 'imageAltEn',
+          'shortDescriptionId', 'shortDescriptionEn', 'overviewId', 'overviewEn',
+          'architectureNotesId', 'architectureNotesEn', 'technologies', 'sortOrder',
+          'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.slug) &&
+        data.isDemo is bool &&
+        data.featured is bool &&
+        isStr(data.titleId, 1, 200) &&
+        isStr(data.titleEn, 1, 200) &&
+        data.category in ['Website', 'Software', 'Networking', 'Creative Design', 'Digital Innovation'] &&
+        isStr(data.categoryLabelId, 1, 80) &&
+        isStr(data.categoryLabelEn, 1, 80) &&
+        isValidId(data.divisionId) &&
+        isStr(data.year, 4, 16) &&
+        isStr(data.statusId, 1, 80) &&
+        isStr(data.statusEn, 1, 80) &&
+        isStr(data.image, 1, 500) &&
+        isStr(data.imageAltId, 1, 240) &&
+        isStr(data.imageAltEn, 1, 240) &&
+        isStr(data.shortDescriptionId, 1, 600) &&
+        isStr(data.shortDescriptionEn, 1, 600) &&
+        isStr(data.overviewId, 1, 3000) &&
+        isStr(data.overviewEn, 1, 3000) &&
+        isStr(data.architectureNotesId, 1, 3000) &&
+        isStr(data.architectureNotesEn, 1, 3000) &&
+        isStringList(data.technologies, 12, 80) &&
+        data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000 &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidArticle(data) {
+      return data.keys().hasAll([
+          'slug', 'isDemo', 'featured', 'titleId', 'titleEn',
+          'excerptId', 'excerptEn', 'category', 'categoryLabelId', 'categoryLabelEn',
+          'publishedAt', 'publishedLabelId', 'publishedLabelEn', 'readingMinutes',
+          'image', 'imageAltId', 'imageAltEn', 'author',
+          'sectionHeadingId', 'sectionHeadingEn', 'sectionBodyId', 'sectionBodyEn',
+          'sortOrder', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'slug', 'isDemo', 'featured', 'titleId', 'titleEn',
+          'excerptId', 'excerptEn', 'category', 'categoryLabelId', 'categoryLabelEn',
+          'publishedAt', 'publishedLabelId', 'publishedLabelEn', 'readingMinutes',
+          'image', 'imageAltId', 'imageAltEn', 'author',
+          'sectionHeadingId', 'sectionHeadingEn', 'sectionBodyId', 'sectionBodyEn',
+          'sortOrder', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.slug) &&
+        data.isDemo is bool &&
+        data.featured is bool &&
+        isStr(data.titleId, 1, 240) &&
+        isStr(data.titleEn, 1, 240) &&
+        isStr(data.excerptId, 1, 600) &&
+        isStr(data.excerptEn, 1, 600) &&
+        data.category in ['Technology', 'Networking', 'Software', 'Hardware', 'Digital Innovation', 'Tutorials'] &&
+        isStr(data.categoryLabelId, 1, 80) &&
+        isStr(data.categoryLabelEn, 1, 80) &&
+        isStr(data.publishedAt, 4, 32) &&
+        isStr(data.publishedLabelId, 1, 64) &&
+        isStr(data.publishedLabelEn, 1, 64) &&
+        data.readingMinutes is number && data.readingMinutes >= 1 && data.readingMinutes <= 120 &&
+        isStr(data.image, 1, 500) &&
+        isStr(data.imageAltId, 1, 240) &&
+        isStr(data.imageAltEn, 1, 240) &&
+        isStr(data.author, 1, 120) &&
+        isStr(data.sectionHeadingId, 1, 200) &&
+        isStr(data.sectionHeadingEn, 1, 200) &&
+        isStr(data.sectionBodyId, 1, 6000) &&
+        isStr(data.sectionBodyEn, 1, 6000) &&
+        data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000 &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    // --- Collection Rules ---
+
+    // 1. Admins (PII isolated strictly to authorized admins)
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && isAdmin();
+      allow list: if isAdmin();
+      allow create: if isValidId(adminId) && isAdmin() &&
+        isValidAdminUser(incoming()) &&
+        incoming().uid == adminId &&
+        incoming().createdBy == request.auth.uid &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(adminId) && isAdmin() &&
+        isValidAdminUser(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdBy == existing().createdBy &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['email', 'label', 'updatedAt']);
+      allow delete: if isValidId(adminId) && isAdmin();
+    }
+
+    // 2. Site Settings (Home & Featured Configuration)
+    match /siteSettings/{settingId} {
+      allow get: if isValidId(settingId);
+      allow list: if true;
+      allow create: if isValidId(settingId) && isAdmin() &&
+        isValidSiteHomeSettings(incoming()) &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(settingId) && isAdmin() &&
+        isValidSiteHomeSettings(incoming()) &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'heroEyebrowId', 'heroEyebrowEn', 'heroHeadlineId', 'heroHeadlineEn',
+          'heroDescriptionId', 'heroDescriptionEn', 'introTitleId', 'introTitleEn',
+          'introParagraph1Id', 'introParagraph1En', 'introParagraph2Id', 'introParagraph2En',
+          'ctaHeadlineId', 'ctaHeadlineEn', 'ctaDescriptionId', 'ctaDescriptionEn',
+          'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isValidId(settingId) && isAdmin();
+    }
+
+    // 3. Divisions
+    match /divisions/{divisionId} {
+      allow get: if isValidId(divisionId);
+      allow list: if true;
+      allow create: if isValidId(divisionId) && isAdmin() &&
+        isValidDivision(incoming()) &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(divisionId) && isAdmin() &&
+        isValidDivision(incoming()) &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'slug', 'name', 'shortLabelId', 'shortLabelEn', 'icon',
+          'descriptionId', 'descriptionEn', 'extendedOverviewId', 'extendedOverviewEn',
+          'methodologyId', 'methodologyEn', 'focusAreasId', 'focusAreasEn',
+          'sortOrder', 'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isValidId(divisionId) && isAdmin();
+    }
+
+    // 4. Services
+    match /services/{serviceId} {
+      allow get: if isValidId(serviceId);
+      allow list: if true;
+      allow create: if isValidId(serviceId) && isAdmin() &&
+        isValidService(incoming()) &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(serviceId) && isAdmin() &&
+        isValidService(incoming()) &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'number', 'divisionId', 'icon', 'nameId', 'nameEn',
+          'shortDescriptionId', 'shortDescriptionEn', 'scopeDetailsId', 'scopeDetailsEn',
+          'featured', 'sortOrder', 'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isValidId(serviceId) && isAdmin();
+    }
+
+    // 5. Digital Products
+    match /products/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow create: if isValidId(productId) && isAdmin() &&
+        isValidProduct(incoming()) &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(productId) && isAdmin() &&
+        isValidProduct(incoming()) &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'slug', 'isDemo', 'featured', 'name', 'category',
+          'categoryLabelId', 'categoryLabelEn', 'statusId', 'statusEn',
+          'image', 'imageAltId', 'imageAltEn',
+          'shortDescriptionId', 'shortDescriptionEn',
+          'fullDescriptionId', 'fullDescriptionEn',
+          'capabilitiesId', 'capabilitiesEn', 'sortOrder',
+          'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isValidId(productId) && isAdmin();
+    }
+
+    // 6. Projects
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId);
+      allow list: if true;
+      allow create: if isValidId(projectId) && isAdmin() &&
+        isValidProject(incoming()) &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(projectId) && isAdmin() &&
+        isValidProject(incoming()) &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'slug', 'isDemo', 'featured', 'titleId', 'titleEn', 'category',
+          'categoryLabelId', 'categoryLabelEn', 'divisionId', 'year',
+          'statusId', 'statusEn', 'image', 'imageAltId', 'imageAltEn',
+          'shortDescriptionId', 'shortDescriptionEn', 'overviewId', 'overviewEn',
+          'architectureNotesId', 'architectureNotesEn', 'technologies', 'sortOrder',
+          'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isValidId(projectId) && isAdmin();
+    }
+
+    // 7. Insights Articles
+    match /articles/{articleId} {
+      allow get: if isValidId(articleId);
+      allow list: if true;
+      allow create: if isValidId(articleId) && isAdmin() &&
+        isValidArticle(incoming()) &&
+        hasValidCreateTimestamps(incoming());
+      allow update: if isValidId(articleId) && isAdmin() &&
+        isValidArticle(incoming()) &&
+        hasValidUpdateTimestamps(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'slug', 'isDemo', 'featured', 'titleId', 'titleEn',
+          'excerptId', 'excerptEn', 'category', 'categoryLabelId', 'categoryLabelEn',
+          'publishedAt', 'publishedLabelId', 'publishedLabelEn', 'readingMinutes',
+          'image', 'imageAltId', 'imageAltEn', 'author',
+          'sectionHeadingId', 'sectionHeadingEn', 'sectionBodyId', 'sectionBodyEn',
+          'sortOrder', 'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isValidId(articleId) && isAdmin();
+    }
+  }
+}

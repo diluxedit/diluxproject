@@ -1,0 +1,374 @@
+{
+  "entities": {
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized administrator record keyed by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 200
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "createdBy": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "label", "createdBy", "createdAt", "updatedAt"]
+    },
+    "SiteHomeSettings": {
+      "title": "SiteHomeSettings",
+      "description": "Editable home page hero, introduction, and CTA bilingual texts.",
+      "type": "object",
+      "properties": {
+        "heroEyebrowId": { "type": "string", "maxLength": 120 },
+        "heroEyebrowEn": { "type": "string", "maxLength": 120 },
+        "heroHeadlineId": { "type": "string", "maxLength": 200 },
+        "heroHeadlineEn": { "type": "string", "maxLength": 200 },
+        "heroDescriptionId": { "type": "string", "maxLength": 500 },
+        "heroDescriptionEn": { "type": "string", "maxLength": 500 },
+        "introTitleId": { "type": "string", "maxLength": 150 },
+        "introTitleEn": { "type": "string", "maxLength": 150 },
+        "introParagraph1Id": { "type": "string", "maxLength": 1000 },
+        "introParagraph1En": { "type": "string", "maxLength": 1000 },
+        "introParagraph2Id": { "type": "string", "maxLength": 1000 },
+        "introParagraph2En": { "type": "string", "maxLength": 1000 },
+        "ctaHeadlineId": { "type": "string", "maxLength": 200 },
+        "ctaHeadlineEn": { "type": "string", "maxLength": 200 },
+        "ctaDescriptionId": { "type": "string", "maxLength": 500 },
+        "ctaDescriptionEn": { "type": "string", "maxLength": 500 },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "heroEyebrowId",
+        "heroEyebrowEn",
+        "heroHeadlineId",
+        "heroHeadlineEn",
+        "heroDescriptionId",
+        "heroDescriptionEn",
+        "introTitleId",
+        "introTitleEn",
+        "introParagraph1Id",
+        "introParagraph1En",
+        "introParagraph2Id",
+        "introParagraph2En",
+        "ctaHeadlineId",
+        "ctaHeadlineEn",
+        "ctaDescriptionId",
+        "ctaDescriptionEn",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Division": {
+      "title": "Division",
+      "description": "DILUX GROUP corporate division entry.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string", "maxLength": 100, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 120 },
+        "shortLabelId": { "type": "string", "maxLength": 160 },
+        "shortLabelEn": { "type": "string", "maxLength": 160 },
+        "icon": { "type": "string", "enum": ["Code2", "Server", "Palette", "Compass"] },
+        "descriptionId": { "type": "string", "maxLength": 600 },
+        "descriptionEn": { "type": "string", "maxLength": 600 },
+        "extendedOverviewId": { "type": "string", "maxLength": 2000 },
+        "extendedOverviewEn": { "type": "string", "maxLength": 2000 },
+        "methodologyId": { "type": "string", "maxLength": 1000 },
+        "methodologyEn": { "type": "string", "maxLength": 1000 },
+        "focusAreasId": { "type": "array" },
+        "focusAreasEn": { "type": "array" },
+        "sortOrder": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "slug",
+        "name",
+        "shortLabelId",
+        "shortLabelEn",
+        "icon",
+        "descriptionId",
+        "descriptionEn",
+        "extendedOverviewId",
+        "extendedOverviewEn",
+        "methodologyId",
+        "methodologyEn",
+        "focusAreasId",
+        "focusAreasEn",
+        "sortOrder",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "DILUX GROUP service catalog item.",
+      "type": "object",
+      "properties": {
+        "number": { "type": "string", "maxLength": 10 },
+        "divisionId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "icon": {
+          "type": "string",
+          "enum": ["Globe", "AppWindow", "Terminal", "Network", "Router", "Headphones", "Cpu", "Layout", "PenTool", "Sparkles"]
+        },
+        "nameId": { "type": "string", "maxLength": 160 },
+        "nameEn": { "type": "string", "maxLength": 160 },
+        "shortDescriptionId": { "type": "string", "maxLength": 600 },
+        "shortDescriptionEn": { "type": "string", "maxLength": 600 },
+        "scopeDetailsId": { "type": "array" },
+        "scopeDetailsEn": { "type": "array" },
+        "featured": { "type": "boolean" },
+        "sortOrder": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "number",
+        "divisionId",
+        "icon",
+        "nameId",
+        "nameEn",
+        "shortDescriptionId",
+        "shortDescriptionEn",
+        "scopeDetailsId",
+        "scopeDetailsEn",
+        "featured",
+        "sortOrder",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Digital product showcase item.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string", "maxLength": 120, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "isDemo": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "name": { "type": "string", "maxLength": 160 },
+        "category": { "type": "string", "enum": ["Software", "Web Applications", "Digital Tools", "Technology Products"] },
+        "categoryLabelId": { "type": "string", "maxLength": 80 },
+        "categoryLabelEn": { "type": "string", "maxLength": 80 },
+        "statusId": { "type": "string", "maxLength": 80 },
+        "statusEn": { "type": "string", "maxLength": 80 },
+        "image": { "type": "string", "maxLength": 500 },
+        "imageAltId": { "type": "string", "maxLength": 240 },
+        "imageAltEn": { "type": "string", "maxLength": 240 },
+        "shortDescriptionId": { "type": "string", "maxLength": 600 },
+        "shortDescriptionEn": { "type": "string", "maxLength": 600 },
+        "fullDescriptionId": { "type": "string", "maxLength": 3000 },
+        "fullDescriptionEn": { "type": "string", "maxLength": 3000 },
+        "capabilitiesId": { "type": "array" },
+        "capabilitiesEn": { "type": "array" },
+        "sortOrder": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "slug",
+        "isDemo",
+        "featured",
+        "name",
+        "category",
+        "categoryLabelId",
+        "categoryLabelEn",
+        "statusId",
+        "statusEn",
+        "image",
+        "imageAltId",
+        "imageAltEn",
+        "shortDescriptionId",
+        "shortDescriptionEn",
+        "fullDescriptionId",
+        "fullDescriptionEn",
+        "capabilitiesId",
+        "capabilitiesEn",
+        "sortOrder",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Portfolio project item.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string", "maxLength": 120, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "isDemo": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "titleId": { "type": "string", "maxLength": 200 },
+        "titleEn": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "enum": ["Website", "Software", "Networking", "Creative Design", "Digital Innovation"] },
+        "categoryLabelId": { "type": "string", "maxLength": 80 },
+        "categoryLabelEn": { "type": "string", "maxLength": 80 },
+        "divisionId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "year": { "type": "string", "maxLength": 16 },
+        "statusId": { "type": "string", "maxLength": 80 },
+        "statusEn": { "type": "string", "maxLength": 80 },
+        "image": { "type": "string", "maxLength": 500 },
+        "imageAltId": { "type": "string", "maxLength": 240 },
+        "imageAltEn": { "type": "string", "maxLength": 240 },
+        "shortDescriptionId": { "type": "string", "maxLength": 600 },
+        "shortDescriptionEn": { "type": "string", "maxLength": 600 },
+        "overviewId": { "type": "string", "maxLength": 3000 },
+        "overviewEn": { "type": "string", "maxLength": 3000 },
+        "architectureNotesId": { "type": "string", "maxLength": 3000 },
+        "architectureNotesEn": { "type": "string", "maxLength": 3000 },
+        "technologies": { "type": "array" },
+        "sortOrder": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "slug",
+        "isDemo",
+        "featured",
+        "titleId",
+        "titleEn",
+        "category",
+        "categoryLabelId",
+        "categoryLabelEn",
+        "divisionId",
+        "year",
+        "statusId",
+        "statusEn",
+        "image",
+        "imageAltId",
+        "imageAltEn",
+        "shortDescriptionId",
+        "shortDescriptionEn",
+        "overviewId",
+        "overviewEn",
+        "architectureNotesId",
+        "architectureNotesEn",
+        "technologies",
+        "sortOrder",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Article": {
+      "title": "Article",
+      "description": "Insights editorial article entry.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string", "maxLength": 120, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "isDemo": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "titleId": { "type": "string", "maxLength": 240 },
+        "titleEn": { "type": "string", "maxLength": 240 },
+        "excerptId": { "type": "string", "maxLength": 600 },
+        "excerptEn": { "type": "string", "maxLength": 600 },
+        "category": { "type": "string", "enum": ["Technology", "Networking", "Software", "Hardware", "Digital Innovation", "Tutorials"] },
+        "categoryLabelId": { "type": "string", "maxLength": 80 },
+        "categoryLabelEn": { "type": "string", "maxLength": 80 },
+        "publishedAt": { "type": "string", "maxLength": 32 },
+        "publishedLabelId": { "type": "string", "maxLength": 64 },
+        "publishedLabelEn": { "type": "string", "maxLength": 64 },
+        "readingMinutes": { "type": "number" },
+        "image": { "type": "string", "maxLength": 500 },
+        "imageAltId": { "type": "string", "maxLength": 240 },
+        "imageAltEn": { "type": "string", "maxLength": 240 },
+        "author": { "type": "string", "maxLength": 120 },
+        "sectionHeadingId": { "type": "string", "maxLength": 200 },
+        "sectionHeadingEn": { "type": "string", "maxLength": 200 },
+        "sectionBodyId": { "type": "string", "maxLength": 6000 },
+        "sectionBodyEn": { "type": "string", "maxLength": 6000 },
+        "sortOrder": { "type": "number" },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "slug",
+        "isDemo",
+        "featured",
+        "titleId",
+        "titleEn",
+        "excerptId",
+        "excerptEn",
+        "category",
+        "categoryLabelId",
+        "categoryLabelEn",
+        "publishedAt",
+        "publishedLabelId",
+        "publishedLabelEn",
+        "readingMinutes",
+        "image",
+        "imageAltId",
+        "imageAltEn",
+        "author",
+        "sectionHeadingId",
+        "sectionHeadingEn",
+        "sectionBodyId",
+        "sectionBodyEn",
+        "sortOrder",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Registered administrator accounts authorized to edit CMS content."
+    },
+    "/siteSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/SiteHomeSettings" },
+      "description": "Publicly readable home page and featured section configuration, editable only by admins."
+    },
+    "/divisions/{divisionId}": {
+      "schema": { "$ref": "#/entities/Division" },
+      "description": "Publicly readable corporate divisions, editable only by admins."
+    },
+    "/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/Service" },
+      "description": "Publicly readable service catalog items, editable only by admins."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Publicly readable digital product entries, editable only by admins."
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Publicly readable portfolio projects, editable only by admins."
+    },
+    "/articles/{articleId}": {
+      "schema": { "$ref": "#/entities/Article" },
+      "description": "Publicly readable editorial insights articles, editable only by admins."
+    }
+  }
+}

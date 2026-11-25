@@ -1,0 +1,413 @@
+export const enLocale = {
+  brand: {
+    name: 'DILUX GROUP',
+    fullName: 'Digital Luxury Group',
+    tagline: 'Technology Beyond Ordinary.',
+    shortDescription:
+      'A Digital Technology Group focused on technological development, digital solutions, creative innovation, software engineering, and technology exploration.',
+    copyright: '© 2026 DILUX GROUP. All Rights Reserved.',
+  },
+  nav: {
+    home: 'Home',
+    about: 'About Us',
+    divisions: 'Divisions',
+    services: 'Services',
+    products: 'Products',
+    projects: 'Projects',
+    insights: 'Insights',
+    contact: 'Contact',
+    admin: 'Admin Portal',
+    menuOpen: 'Open navigation menu',
+    menuClose: 'Close navigation menu',
+    backToTop: 'Back to top',
+  },
+  common: {
+    learnMore: 'Learn More',
+    explore: 'Explore Division',
+    contactUs: 'Contact Us',
+    viewAll: 'View All',
+    back: 'Back',
+    allCategories: 'All',
+    demoLabel: 'DEMO',
+    demoNotice: 'Sample content (DEMO) — ready to be replaced with official records.',
+    statusLabel: 'Status',
+    yearLabel: 'Year',
+    divisionLabel: 'Related Division',
+    technologiesLabel: 'Technologies',
+    readingTime: 'min read',
+  },
+  home: {
+    heroEyebrow: 'Digital Luxury Group',
+    heroHeadline: 'Technology Beyond Ordinary.',
+    heroDescription:
+      'Building digital possibilities through technology, creativity, and innovation.',
+    heroPrimaryCta: 'Explore Our World',
+    heroSecondaryCta: 'Contact Us',
+    divisionsCountLabel: '4 Core Divisions',
+    introKicker: 'Corporate Identity',
+    introTitle: 'Who We Are',
+    introParagraph1:
+      'DILUX GROUP (Digital Luxury Group) is a growing digital technology organization focused on software engineering, IT and network infrastructure, creative design, and forward-thinking technology exploration.',
+    introParagraph2:
+      'We bring together engineering discipline and visual clarity to build structured, reliable digital systems tailored for modern requirements.',
+    introCta: 'About DILUX GROUP',
+    divisionsKicker: 'Our Ecosystem',
+    divisionsTitle: 'Core Divisions',
+    divisionsSubtitle:
+      'Four specialized operational pillars spanning software systems, infrastructure, creative craft, and applied R&D.',
+    servicesKicker: 'Technical Capabilities',
+    servicesTitle: 'Selected Services',
+    servicesSubtitle:
+      'Integrated capabilities across web engineering, computer networking, and digital visual identity.',
+    projectsKicker: 'Sample Portfolio',
+    projectsTitle: 'Featured Projects',
+    projectsSubtitle:
+      'Cross-division concept showcases demonstrating our structured approach to digital execution.',
+    productsKicker: 'Digital Initiatives',
+    productsTitle: 'Digital Products',
+    productsSubtitle:
+      'Software concepts and digital tools developed as part of our ongoing exploration and product architecture.',
+    insightsKicker: 'Technology Journal',
+    insightsTitle: 'Latest Insights',
+    insightsSubtitle:
+      'Technical notes, architectural perspectives, and practical guides on modern technology.',
+    ctaHeadline: "Let's Build Something Beyond Ordinary.",
+    ctaDescription:
+      'Have an idea, project, or collaboration in mind? Let’s make it happen.',
+    ctaButton: 'Get in Touch',
+  },
+  about: {
+    pageTitle: 'About Us — DILUX GROUP',
+    pageDescription:
+      'Official company profile of DILUX GROUP (Digital Luxury Group): brand philosophy, vision, mission, core values, and approach.',
+    headerKicker: 'Company Profile',
+    headerTitle: 'About DILUX GROUP',
+    headerSubtitle:
+      'Digital Luxury Group — a digital technology organization uniting engineering precision, creative direction, and continuous exploration.',
+    overviewTitle: 'Company Overview',
+    overviewBody1:
+      'DILUX GROUP is a Digital Technology Group focused on technological development, digital solutions, creative innovation, software development, and technology exploration.',
+    overviewBody2:
+      'As an evolving technology group, DILUX GROUP organizes its capabilities into dedicated divisions so ideas can progress seamlessly from early research to practical implementation.',
+    philosophyTitle: 'Brand Philosophy',
+    philosophyBody:
+      'To us, "Digital Luxury" is never about excess. It represents thoughtful craftsmanship, visual calm, architectural reliability, and digital experiences that feel deliberate and enduring.',
+    visionTitle: 'Vision',
+    visionStatement:
+      'To become an innovative and adaptive digital technology group delivering meaningful technological solutions.',
+    missionTitle: 'Mission',
+    missionItems: [
+      'Develop purposeful and practical technology solutions.',
+      'Foster creativity and meaningful digital innovation.',
+      'Build reliable, high-craft digital products.',
+      'Continuously advance technological capability and knowledge.',
+      'Cultivate open collaboration across the technology landscape.',
+    ],
+    valuesTitle: 'Core Values',
+    values: [
+      {
+        title: 'Innovation',
+        description:
+          'Continuously exploring clearer, more effective ways to architect systems and solve technical challenges.',
+      },
+      {
+        title: 'Integrity',
+        description:
+          'Maintaining professional honesty, transparent communication, and accountability in every collaboration.',
+      },
+      {
+        title: 'Creativity',
+        description:
+          'Blending analytical thinking with design sensitivity to shape memorable digital experiences.',
+      },
+      {
+        title: 'Collaboration',
+        description:
+          'Connecting cross-disciplinary expertise and working openly with partners toward shared outcomes.',
+      },
+      {
+        title: 'Continuous Learning',
+        description:
+          'Making ongoing research and technical mastery part of our everyday engineering culture.',
+      },
+    ],
+    approachTitle: 'Our Approach',
+    approachSteps: [
+      {
+        step: '01',
+        title: 'Exploration & Problem Framing',
+        description:
+          'Mapping technical constraints, user context, and operational goals transparently before writing the first line of code.',
+      },
+      {
+        step: '02',
+        title: 'Structured Architecture & Design',
+        description:
+          'Designing software modules, network topologies, and visual systems with clarity and maintainability in mind.',
+      },
+      {
+        step: '03',
+        title: 'Implementation & Refinement',
+        description:
+          'Delivering clean, modular solutions ready to evolve alongside real-world requirements.',
+      },
+    ],
+  },
+  divisions: {
+    pageTitle: 'Our Divisions — DILUX GROUP',
+    pageDescription:
+      'Explore DILUX GROUP divisions: Dilux Development, Dilux Technology, Dilux Creative, and Dilux Innovation.',
+    headerKicker: 'Organization Structure',
+    headerTitle: 'Our Divisions',
+    headerSubtitle:
+      'Four focused divisions operating cohesively under DILUX GROUP across software, infrastructure, design, and research.',
+    expertiseTitle: 'Areas of Expertise',
+    methodologyTitle: 'Division Approach',
+    relatedServicesTitle: 'Related Services',
+    backToDivisions: 'Back to All Divisions',
+    discussDivision: 'Discuss a Project with This Division',
+  },
+  services: {
+    pageTitle: 'Our Services — DILUX GROUP',
+    pageDescription:
+      'DILUX GROUP service catalog covering web development, software engineering, networking, IT support, hardware, and UI/UX design.',
+    headerKicker: 'Service Catalog',
+    headerTitle: 'Our Services',
+    headerSubtitle:
+      'Ten specialized service categories supported by our four divisions. Reach out to define a scope tailored to your needs.',
+    filterByDivision: 'Filter by Division',
+    scopeLabel: 'Key Focus Areas',
+    contactAction: 'Contact',
+    transparencyNote:
+      'Note: Project scope and engagement terms are defined through direct consultation rather than arbitrary fixed pricing.',
+  },
+  products: {
+    pageTitle: 'Our Products — DILUX GROUP',
+    pageDescription:
+      'Digital product showcase (DEMO entries) by DILUX GROUP across software, web applications, and digital tools.',
+    headerKicker: 'Product Showcase',
+    headerTitle: 'Our Products',
+    headerSubtitle:
+      'The entries below are clearly marked DEMO samples prepared as the showcase framework for upcoming official DILUX GROUP products.',
+    capabilitiesTitle: 'Key Capabilities (Sample)',
+    demoBanner:
+      'All items displayed on this page are DEMO placeholders until official commercial product specifications are published.',
+    inquireProduct: 'Inquire About This Concept',
+    closeDetail: 'Close Details',
+  },
+  projects: {
+    pageTitle: 'Our Projects — DILUX GROUP',
+    pageDescription:
+      'Sample portfolio (DEMO) showcasing DILUX GROUP capabilities across websites, software, networking, creative design, and innovation.',
+    headerKicker: 'Sample Portfolio',
+    headerTitle: 'Our Projects',
+    headerSubtitle:
+      'These editable DEMO entries illustrate how DILUX GROUP documents technical architecture, design craft, and delivery status.',
+    demoBanner:
+      'Projects displayed here are DEMO entries and are not presented as completed commercial client engagements.',
+    backToProjects: 'Back to Projects',
+    overviewTitle: 'Concept Overview',
+    architectureTitle: 'Technical & Implementation Notes',
+    emptyFilter: 'No sample entries found for this category.',
+  },
+  insights: {
+    pageTitle: 'Insights — DILUX GROUP',
+    pageDescription:
+      'Technology articles, tutorials, and architectural notes from DILUX GROUP.',
+    headerKicker: 'Editorial Platform',
+    headerTitle: 'Insights',
+    headerSubtitle:
+      'Sample editorial articles (DEMO content) covering technology, networking, software, hardware, innovation, and practical tutorials.',
+    demoBanner:
+      'Articles shown here are labeled DEMO content serving as the editorial foundation for DILUX GROUP.',
+    readArticle: 'Read Article',
+    backToInsights: 'Back to Insights',
+    relatedArticles: 'Related Articles',
+    writtenBy: 'Written by',
+  },
+  contact: {
+    pageTitle: 'Contact — DILUX GROUP',
+    pageDescription:
+      'Contact DILUX GROUP via WhatsApp (085900423380), Email (diluxedit@gmail.com), or TikTok (@digitalluxuryproject).',
+    headerKicker: 'Get in Touch',
+    headerTitle: 'Contact DILUX GROUP',
+    headerSubtitle:
+      'Connect directly through our official communication channels below or prepare an inquiry using the form.',
+    channelsTitle: 'Official Contact Channels',
+    whatsappTitle: 'WhatsApp',
+    whatsappAction: 'Open WhatsApp Chat',
+    emailTitle: 'Official Email',
+    emailAction: 'Send Email',
+    tiktokTitle: 'Official TikTok',
+    tiktokAction: 'Visit TikTok Profile',
+    formTitle: 'Prepare a Message',
+    formSubtitle: 'Use this form to organize your inquiry details.',
+    formNoticeTitle: 'Form Status (Demo Mode — No Backend Connected)',
+    formNoticeBody:
+      'This initial release does not include a backend server or database. Submitting this form does not store or transmit messages automatically, but prepares a direct WhatsApp or Email handoff for immediate delivery.',
+    fullNameLabel: 'Full Name',
+    fullNamePlaceholder: 'Enter your full name',
+    emailLabel: 'Email Address',
+    emailPlaceholder: 'name@company.com',
+    subjectLabel: 'Subject',
+    subjectPlaceholder: 'e.g. Web Application or Network Consultation',
+    messageLabel: 'Message',
+    messagePlaceholder: 'Describe your idea, requirements, or collaboration topic...',
+    submitButton: 'Validate & Prepare Message',
+    demoConfirmedTitle: 'Message Validated (Demo Mode)',
+    demoConfirmedBody:
+      'Your input has been validated locally and was not saved to a backend database. To send it directly right now, use the pre-filled WhatsApp or Email button below.',
+    sendViaWhatsApp: 'Send This Message via WhatsApp',
+    sendViaEmail: 'Open in Email Client',
+    resetForm: 'Edit Message',
+  },
+  footer: {
+    navigationTitle: 'Navigation',
+    divisionsTitle: 'Divisions',
+    contactTitle: 'Official Contact',
+    description:
+      'A digital technology group building modern solutions through software engineering, IT infrastructure, creative design, and innovation.',
+  },
+  admin: {
+    pageTitle: 'Admin Database Portal — DILUX GROUP',
+    pageDescription:
+      'Official DILUX GROUP administrative console for managing featured homepage sections, projects, digital products, insights, divisions, and services.',
+    headerKicker: 'Content Management System',
+    headerTitle: 'Admin Database Portal',
+    headerSubtitle:
+      'Sign in with an authorized administrator Google account to live-edit featured sections, projects, digital products, insights, divisions, and services.',
+    loadingStatus: 'Verifying authentication session and admin permissions...',
+    loginTitle: 'Administrator Sign-In',
+    loginDescription:
+      'Access to the DILUX GROUP database is protected by Google Authentication and Firestore security rules. Only authorized administrator accounts may modify live records.',
+    loginButton: 'Sign in with Google',
+    loginError: 'Google sign-in failed. Please allow pop-ups and try again.',
+    deniedTitle: 'Access Denied',
+    deniedDescription:
+      'Your Google account was authenticated, but this email or UID is not registered as a DILUX GROUP administrator.',
+    signedInAs: 'Signed in as',
+    uidLabel: 'User UID',
+    signOut: 'Sign Out',
+    backToSite: 'View Public Site',
+    seedBannerTitle: 'Sync Default Records to Firestore',
+    seedBannerDescription:
+      'Some Firestore collections are still empty and currently display local fallback records. Click the button to copy initial records into the database so every item becomes editable.',
+    seedSyncedTitle: 'Firestore Database Connected',
+    seedSyncedDescription:
+      'All primary collections are synchronized live with Cloud Firestore.',
+    seedButton: 'Initialize Default Data to Database',
+    seedingButton: 'Syncing...',
+    seedSuccess: 'Initial data synced to Firestore successfully.',
+    saveSuccess: 'Changes saved to Firestore successfully.',
+    deleteSuccess: 'Record deleted from Firestore successfully.',
+    actionError: 'An error occurred while processing the request.',
+    featuredBadge: 'Featured',
+    notFeaturedLabel: 'Standard',
+    toggleFeatured: 'Feature on Home Page',
+    demoBadge: 'DEMO Content',
+    editButton: 'Edit',
+    deleteButton: 'Delete',
+    confirmDeleteButton: 'Confirm Delete',
+    cancelButton: 'Cancel',
+    saveButton: 'Save to Database',
+    savingButton: 'Saving...',
+    createNewButton: 'Add New',
+    tabs: {
+      home: 'Home & Featured',
+      projects: 'Projects',
+      products: 'Digital Products',
+      insights: 'Insights',
+      divisionsServices: 'Divisions & Services',
+      admins: 'Admin Access',
+    },
+    homeForm: {
+      sectionCopyTitle: 'Homepage Primary Copy',
+      heroEyebrowId: 'Hero Eyebrow (ID)',
+      heroEyebrowEn: 'Hero Eyebrow (EN)',
+      heroHeadlineId: 'Hero Headline (ID)',
+      heroHeadlineEn: 'Hero Headline (EN)',
+      heroDescriptionId: 'Hero Description (ID)',
+      heroDescriptionEn: 'Hero Description (EN)',
+      introTitleId: 'Intro Section Title (ID)',
+      introTitleEn: 'Intro Section Title (EN)',
+      introParagraph1Id: 'Intro Paragraph 1 (ID)',
+      introParagraph1En: 'Intro Paragraph 1 (EN)',
+      introParagraph2Id: 'Intro Paragraph 2 (ID)',
+      introParagraph2En: 'Intro Paragraph 2 (EN)',
+      ctaHeadlineId: 'Bottom CTA Headline (ID)',
+      ctaHeadlineEn: 'Bottom CTA Headline (EN)',
+      ctaDescriptionId: 'Bottom CTA Description (ID)',
+      ctaDescriptionEn: 'Bottom CTA Description (EN)',
+      featuredManagerTitle: 'Manage Featured Homepage Sections',
+      featuredManagerDesc:
+        'Toggle the Featured flag to control which entries appear in the curated Homepage showcase sections.',
+      featuredProjects: 'Featured Projects',
+      featuredProducts: 'Featured Digital Products',
+      featuredServices: 'Selected Services',
+      featuredInsights: 'Latest Insights',
+    },
+    fields: {
+      slug: 'Slug / URL ID',
+      titleId: 'Title (Indonesian)',
+      titleEn: 'Title (English)',
+      name: 'Name',
+      nameId: 'Name (Indonesian)',
+      nameEn: 'Name (English)',
+      shortLabelId: 'Short Label (Indonesian)',
+      shortLabelEn: 'Short Label (English)',
+      category: 'Category',
+      categoryLabelId: 'Category Label (ID)',
+      categoryLabelEn: 'Category Label (EN)',
+      division: 'Related Division',
+      year: 'Year',
+      statusId: 'Status (Indonesian)',
+      statusEn: 'Status (English)',
+      image: 'Image (Select Asset or URL)',
+      imageAltId: 'Image Alt (ID)',
+      imageAltEn: 'Image Alt (EN)',
+      shortDescId: 'Short Description (ID)',
+      shortDescEn: 'Short Description (EN)',
+      overviewId: 'Full Overview (ID)',
+      overviewEn: 'Full Overview (EN)',
+      archNotesId: 'Technical & Architecture Notes (ID)',
+      archNotesEn: 'Technical & Architecture Notes (EN)',
+      technologies: 'Technologies (comma-separated)',
+      capabilitiesId: 'Key Capabilities ID (one per line)',
+      capabilitiesEn: 'Key Capabilities EN (one per line)',
+      excerptId: 'Short Excerpt (ID)',
+      excerptEn: 'Short Excerpt (EN)',
+      publishedAt: 'Published Date (YYYY-MM-DD)',
+      publishedLabelId: 'Date Label (ID)',
+      publishedLabelEn: 'Date Label (EN)',
+      readingMinutes: 'Reading Minutes',
+      author: 'Author',
+      sectionHeadingId: 'Article Section Heading (ID)',
+      sectionHeadingEn: 'Article Section Heading (EN)',
+      sectionBodyId: 'Article Body (ID)',
+      sectionBodyEn: 'Article Body (EN)',
+      number: 'Display Number (e.g. 01)',
+      icon: 'Icon',
+      scopeDetailsId: 'Service Scope ID (one per line)',
+      scopeDetailsEn: 'Service Scope EN (one per line)',
+      methodologyId: 'Division Methodology (ID)',
+      methodologyEn: 'Division Methodology (EN)',
+      focusAreasId: 'Focus Areas ID (one per line)',
+      focusAreasEn: 'Focus Areas EN (one per line)',
+      sortOrder: 'Sort Order',
+      isDemo: 'Mark as DEMO Content',
+      isFeatured: 'Feature on Home Page',
+      adminUid: 'Firebase User UID',
+      adminEmail: 'Google Email Address',
+      adminLabel: 'Admin Label / Name',
+    },
+    adminsTab: {
+      primaryTitle: 'Primary Administrator (Bootstrapped)',
+      additionalTitle: 'Additional Administrators',
+      addTitle: 'Add New Administrator',
+      addDesc:
+        'Provide a verified Firebase Authentication User UID and Google email address to grant database management permissions.',
+      addButton: 'Add Administrator',
+      emptyAdditional: 'No additional administrators registered in /admins.',
+    },
+  },
+} as const;
