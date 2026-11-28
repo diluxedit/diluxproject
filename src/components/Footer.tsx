@@ -3,10 +3,12 @@ import {Link} from 'react-router-dom';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
 import {OFFICIAL_CONTACT} from '../data/contact';
+import {RevealSection} from './RevealSection';
+import {SafeImage} from './SafeImage';
 
 export function Footer() {
   const {t} = useLanguage();
-  const {divisions} = useFirebase();
+  const {divisions, homeSettings} = useFirebase();
 
   const navLinks = [
     {to: '/', label: t.nav.home},
@@ -20,17 +22,16 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-[#0B1428] text-slate-300 border-t border-[#142B4D]">
+    <footer className="dilux-glass-canvas-dark text-slate-300 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
-          <div className="lg:col-span-4 space-y-4">
+          <RevealSection className="lg:col-span-4 space-y-4" delayIndex={0}>
             <Link to="/" className="inline-flex items-center gap-3.5 group">
-              <span className="w-12 h-12 rounded-lg overflow-hidden bg-[#142B4D] shrink-0">
-                <img
-                  src={OFFICIAL_CONTACT.logoPath}
+              <span className="w-12 h-12 rounded-xl overflow-hidden bg-[#142B4D] border border-white/15 shrink-0">
+                <SafeImage
+                  src={homeSettings.brandLogoUrl}
                   alt="DILUX GROUP Logo"
                   className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
                 />
               </span>
               <div>
@@ -48,9 +49,9 @@ export function Footer() {
               <span className="text-[#60A5FA] font-medium">{t.brand.founderLabel}:</span>{' '}
               {t.brand.founderName} · {t.brand.founderRole}
             </p>
-          </div>
+          </RevealSection>
 
-          <div className="lg:col-span-3">
+          <RevealSection className="lg:col-span-3" delayIndex={1}>
             <h2 className="font-display text-sm font-semibold text-white mb-4">
               {t.footer.navigationTitle}
             </h2>
@@ -66,9 +67,9 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </RevealSection>
 
-          <div className="lg:col-span-2">
+          <RevealSection className="lg:col-span-2" delayIndex={2}>
             <h2 className="font-display text-sm font-semibold text-white mb-4">
               {t.footer.divisionsTitle}
             </h2>
@@ -84,9 +85,9 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </RevealSection>
 
-          <div className="lg:col-span-3">
+          <RevealSection className="lg:col-span-3" delayIndex={3}>
             <h2 className="font-display text-sm font-semibold text-white mb-4">
               {t.footer.contactTitle}
             </h2>
@@ -123,10 +124,13 @@ export function Footer() {
                 </a>
               </li>
             </ul>
-          </div>
+          </RevealSection>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-slate-400">
+        <RevealSection
+          delayIndex={1}
+          className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-slate-400"
+        >
           <p>{t.brand.copyright}</p>
           <div className="flex items-center gap-5">
             <Link to="/admin" className="hover:text-[#60A5FA] transition-colors">
@@ -134,7 +138,7 @@ export function Footer() {
             </Link>
             <span>{t.brand.fullName}</span>
           </div>
-        </div>
+        </RevealSection>
       </div>
     </footer>
   );

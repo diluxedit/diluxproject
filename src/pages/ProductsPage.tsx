@@ -4,6 +4,7 @@ import {useSearchParams} from 'react-router-dom';
 import {Button} from '../components/Button';
 import {ProductCard} from '../components/Cards';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
 import {SafeImage} from '../components/SafeImage';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
@@ -49,7 +50,7 @@ export function ProductsPage() {
     <>
       <PageHead title={t.products.pageTitle} description={t.products.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.products.headerKicker}
@@ -63,41 +64,46 @@ export function ProductsPage() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F1F5F9]">
+      <section className="py-12 sm:py-16 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 rounded-xl bg-white border border-slate-200 p-4 sm:p-5 flex items-start gap-3">
-            <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-sm text-[#0F172A] leading-relaxed">{t.products.demoBanner}</p>
-          </div>
+          <RevealSection delayIndex={0}>
+            <div className="mb-8 rounded-2xl liquid-glass-light p-4 sm:p-5 flex items-start gap-3">
+              <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="text-sm text-[#0F172A] leading-relaxed">{t.products.demoBanner}</p>
+            </div>
+          </RevealSection>
 
-          <div
-            role="group"
-            aria-label="Product categories"
-            className="inline-flex flex-wrap items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded-xl mb-8"
-          >
-            {PRODUCT_CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                type="button"
-                onClick={() => setActiveCategory(cat.value)}
-                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                  activeCategory === cat.value
-                    ? 'bg-[#0B1428] text-white'
-                    : 'text-[#64748B] hover:text-[#0F172A]'
-                }`}
-              >
-                {language === 'id' ? cat.idLabel : cat.enLabel}
-              </button>
-            ))}
-          </div>
+          <RevealSection delayIndex={1}>
+            <div
+              role="group"
+              aria-label="Product categories"
+              className="inline-flex flex-wrap items-center gap-1.5 p-1.5 liquid-glass-control rounded-2xl mb-8"
+            >
+              {PRODUCT_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.value)}
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap ${
+                    activeCategory === cat.value
+                      ? 'bg-[#0B1428] text-white shadow-sm'
+                      : 'text-[#64748B] hover:text-[#0F172A] hover:bg-white/60'
+                  }`}
+                >
+                  {language === 'id' ? cat.idLabel : cat.enLabel}
+                </button>
+              ))}
+            </div>
+          </RevealSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onSelect={(item) => setSelectedProduct(item)}
-              />
+            {filteredProducts.map((product, idx) => (
+              <RevealSection key={`${activeCategory}-${product.id}`} delayIndex={idx} variant="scale" className="flex">
+                <ProductCard
+                  product={product}
+                  onSelect={(item) => setSelectedProduct(item)}
+                />
+              </RevealSection>
             ))}
           </div>
         </div>
@@ -108,10 +114,10 @@ export function ProductsPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="product-detail-title"
-          className="fixed inset-0 z-50 bg-[#0B1428]/70 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#0B1428]/60 backdrop-blur-md flex items-center justify-center p-4"
         >
-          <div className="bg-white rounded-xl border border-slate-200 max-w-2xl w-full overflow-hidden shadow-xl max-h-[90vh] flex flex-col">
-            <div className="aspect-[16/9] w-full overflow-hidden bg-[#0B1428] relative shrink-0">
+          <div className="bg-white/90 backdrop-blur-2xl rounded-2xl border border-white/90 max-w-2xl w-full overflow-hidden shadow-2xl ring-1 ring-slate-900/10 max-h-[90vh] flex flex-col">
+            <div className="aspect-[16/9] w-full overflow-hidden bg-[#0B1428] relative shrink-0 liquid-glass-sheen">
               <SafeImage
                 src={selectedProduct.image}
                 alt={localize(selectedProduct.imageAlt)}
@@ -121,7 +127,7 @@ export function ProductsPage() {
                 type="button"
                 onClick={closeDetail}
                 aria-label={t.products.closeDetail}
-                className="absolute top-4 right-4 w-9 h-9 rounded-lg bg-white/95 text-[#0F172A] flex items-center justify-center hover:bg-white cursor-pointer"
+                className="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl bg-white/85 backdrop-blur-md border border-white text-[#0F172A] flex items-center justify-center hover:bg-white shadow-md cursor-pointer"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -151,7 +157,7 @@ export function ProductsPage() {
                 {localize(selectedProduct.fullDescription)}
               </p>
 
-              <div className="mt-6 pt-5 border-t border-slate-100">
+              <div className="mt-6 pt-5 border-t border-slate-200/70">
                 <h3 className="text-xs font-semibold tracking-wider text-[#0F172A] mb-3">
                   {t.products.capabilitiesTitle}
                 </h3>

@@ -6,15 +6,15 @@ type ButtonSize = 'sm' | 'md' | 'lg';
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    'bg-[#2563EB] text-white hover:bg-[#1D4ED8] border border-transparent shadow-sm',
+    'bg-[#2563EB]/95 text-white hover:bg-[#1D4ED8] border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_10px_24px_-8px_rgba(37,99,235,0.55)] backdrop-blur-md',
   secondary:
-    'bg-[#0B1428] text-white hover:bg-[#142B4D] border border-transparent',
+    'bg-[#0B1428]/95 text-white hover:bg-[#142B4D] border border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_22px_-10px_rgba(11,20,40,0.45)] backdrop-blur-md',
   outline:
-    'bg-white text-[#0F172A] border border-slate-200 hover:border-slate-300 hover:bg-[#F1F5F9]',
+    'bg-white/75 text-[#0F172A] border border-white/90 ring-1 ring-slate-900/5 hover:bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_4px_14px_-4px_rgba(15,23,42,0.08)] backdrop-blur-md',
   outlineLight:
-    'bg-transparent text-white border border-white/25 hover:border-white/50 hover:bg-white/10',
+    'bg-white/10 text-white border border-white/25 hover:border-white/45 hover:bg-white/18 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] backdrop-blur-md',
   ghost:
-    'bg-transparent text-[#0F172A] hover:bg-[#F1F5F9] border border-transparent',
+    'bg-transparent text-[#0F172A] hover:bg-white/60 border border-transparent',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -24,7 +24,7 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 };
 
 const BASE_CLASSES =
-  'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed';
+  'inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-200 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed';
 
 interface CommonProps {
   variant?: ButtonVariant;

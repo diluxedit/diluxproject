@@ -54,6 +54,12 @@ import {
   serializeSiteHomePayload,
 } from '../utils/cmsPayloads';
 
+import {
+  DEFAULT_BRAND_LOGO_URL,
+  DEFAULT_HERO_IMAGE_URL,
+  sanitizeImageRef,
+} from '../utils/imageMedia';
+
 export const BOOTSTRAPPED_ADMIN_EMAIL = 'ramdanitomi6@gmail.com';
 
 export interface AdminRecord {
@@ -80,6 +86,8 @@ export const DEFAULT_HOME_SETTINGS: SiteHomeSettings = {
   ctaHeadlineEn: enLocale.home.ctaHeadline,
   ctaDescriptionId: idLocale.home.ctaDescription,
   ctaDescriptionEn: enLocale.home.ctaDescription,
+  brandLogoUrl: DEFAULT_BRAND_LOGO_URL,
+  heroImageUrl: DEFAULT_HERO_IMAGE_URL,
 };
 
 interface FirebaseContextValue {
@@ -248,6 +256,8 @@ export function FirebaseProvider({children}: {children: React.ReactNode}) {
             ctaHeadlineEn: d.ctaHeadlineEn,
             ctaDescriptionId: d.ctaDescriptionId,
             ctaDescriptionEn: d.ctaDescriptionEn,
+            brandLogoUrl: sanitizeImageRef(d.brandLogoUrl, DEFAULT_BRAND_LOGO_URL),
+            heroImageUrl: sanitizeImageRef(d.heroImageUrl, DEFAULT_HERO_IMAGE_URL),
           });
         } else {
           setDbHomeSettings(null);

@@ -9,6 +9,19 @@ import {
   filterServicesByDivision,
 } from './filters';
 import {validateContactForm, buildWhatsAppInquiryUrl} from './validation';
+import {
+  DEFAULT_BRAND_LOGO_URL,
+  DEFAULT_HERO_IMAGE_URL,
+  isSafeImageRef,
+  sanitizeImageRef,
+} from './imageMedia';
+import {serializeSiteHomePayload} from './cmsPayloads';
+import {
+  computeStaggerDelayMs,
+  getEntranceTimings,
+  isElementInRevealRange,
+  shouldPlayInitialEntrance,
+} from './entrance';
 import type {ArticleItem, ProductItem, ProjectItem, ServiceItem} from '../types';
 
 test('resolveInitialLanguage defaults to Indonesian and accepts valid codes', () => {
@@ -122,4 +135,84 @@ test('validateContactForm rejects oversized fields beyond database limits', () =
   assert.ok(oversized.errors.email);
   assert.ok(oversized.errors.subject);
   assert.ok(oversized.errors.message);
+});
+
+test('isSafeImageRef and sanitizeImageRef allow raster/URLs and reject dangerous URIs', () => {
+  assert.equal(isSafeImageRef(DEFAULT_BRAND_LOGO_URL), true);
+  assert.equal(isSafeImageRef('https://cdn.diluxgroup.my.id/logo.webp'), true);
+  assert.equal(isSafeImageRef('data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA='), true);
+
+  assert.equal(isSafeImageRef('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4='), false);
+  assert.equal(isSafeImageRef('javascript:alert(1)'), false);
+  assert.equal(isSafeImageRef('//evil.example/img.png'), false);
+  assert.equal(isSafeImageRef(''), false);
+
+  assert.equal(
+    sanitizeImageRef('data:image/svg+xml;base64,PHN2Zz4=', DEFAULT_HERO_IMAGE_URL),
+    DEFAULT_HERO_IMAGE_URL
+  );
+});
+
+test('serializeSiteHomePayload preserves valid brandLogoUrl/heroImageUrl and falls back on unsafe URLs', () => {
+  const safePayload = serializeSiteHomePayload(
+    {
+      heroEyebrowId: 'E',
+      heroEyebrowEn: 'E',
+      heroHeadlineId: 'H',
+      heroHeadlineEn: 'H',
+      heroDescriptionId: 'D',
+      heroDescriptionEn: 'D',
+      introTitleId: 'T',
+      introTitleEn: 'T',
+      introParagraph1Id: 'P1',
+      introParagraph1En: 'P1',
+      introParagraph2Id: 'P2',
+      introParagraph2En: 'P2',
+      ctaHeadlineId: 'CH',
+      ctaHeadlineEn: 'CH',
+      ctaDescriptionId: 'CD',
+      ctaDescriptionEn: 'CD',
+      brandLogoUrl: 'javascript:alert(1)',
+      heroImageUrl: 'https://diluxgroup.my.id/hero.jpg',
+    },
+    'admin-uid-1',
+    {createdAt: 'CREATED', updatedAt: 'UPDATED'}
+  );
+  assert.equal(safePayload.brandLogoUrl, DEFAULT_BRAND_LOGO_URL);
+  assert.equal(safePayload.heroImageUrl, 'https://diluxgroup.my.id/hero.jpg');
+});
+
+test('shouldPlayInitialEntrance, getEntranceTimings, and computeStaggerDelayMs enforce restraint and accessibility', () => {
+  assert.equal(
+    shouldPlayInitialEntrance({reducedMotion: false, alreadySeen: false, search: ''}),
+    true
+  );
+  assert.equal(
+    shouldPlayInitialEntrance({reducedMotion: true, alreadySeen: false, search: ''}),
+    false
+  );
+  assert.equal(
+    shouldPlayInitialEntrance({reducedMotion: false, alreadySeen: true, search: ''}),
+    false
+  );
+  assert.equal(
+    shouldPlayInitialEntrance({reducedMotion: false, alreadySeen: false, search: '?skipIntro=1'}),
+    false
+  );
+
+  const activeTimings = getEntranceTimings(true);
+  assert.ok(activeTimings.curtainTotalMs <= 1200);
+  assert.equal(getEntranceTimings(false).curtainTotalMs, 0);
+
+  assert.equal(computeStaggerDelayMs(0, 100, 75, 420), 100);
+  assert.equal(computeStaggerDelayMs(3, 100, 75, 420), 325);
+  assert.equal(computeStaggerDelayMs(99, 100, 75, 420), 420);
+});
+
+test('isElementInRevealRange defers below-viewport elements and reveals visible or scrolled-past elements', () => {
+  assert.equal(isElementInRevealRange(1200, 1500, 900, 36), false);
+  assert.equal(isElementInRevealRange(890, 1100, 900, 36), false);
+  assert.equal(isElementInRevealRange(864, 1100, 900, 36), true);
+  assert.equal(isElementInRevealRange(200, 500, 900, 36), true);
+  assert.equal(isElementInRevealRange(-400, -100, 900, 36), true);
 });

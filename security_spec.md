@@ -10,6 +10,7 @@
 4. **Schema, Type, Size & Temporal Integrity**:
    - Every document ID on single-doc operations (`get`, `create`, `update`, `delete`) must satisfy `isValidId(id)` (`^[a-zA-Z0-9_\-]+$`, max 128 chars).
    - Every write validates exact required and allowed keys (`keys().hasAll(...) && keys().hasOnly(...)`), string lengths, numeric ranges, enum allowlists, bounded array sizes (`<= 12`), `createdAt == request.time` on create, immutable `createdAt == existing().createdAt` and `updatedAt == request.time` on update, and `affectedKeys().hasOnly(...)` on update.
+   - Image fields (`brandLogoUrl`, `heroImageUrl`, and `image` on projects/products/articles) enforce `isValidImageRef` (`https?://`, `/...` non-protocol-relative paths, or raster `data:image/(jpeg|jpg|png|webp|gif);base64,...` up to 450,000 chars), blocking `javascript:`, `data:text/html`, and `data:image/svg+xml`.
 5. **Contact Inbox PII Isolation**:
    - Visitors may `create` documents in `/contactMessages/{messageId}` without authentication, provided all required fields match strict type, format, length bounds (`fullName` 2..120, `email` 5..200 matching email regex, `subject` 3..200, `message` 10..4000), `status == 'new'`, and `createdAt == request.time && updatedAt == request.time`.
    - `get`, `list`, `update`, and `delete` on `/contactMessages/{messageId}` are strictly restricted to `isAdmin()`. Visitors can never read, enumerate, alter, or delete submitted messages.
@@ -32,10 +33,12 @@
 14. **Contact Message Initial Status Tampering**: Visitor attempts `create /contactMessages/msg-1` with `status: "replied"` or extra shadow field `isSpam: false`.
 15. **Contact Message Oversized Payload / Invalid Email**: Visitor attempts `create /contactMessages/msg-2` with `email: "not-an-email"` or `message` > 4000 chars.
 16. **Contact Message Immutable Content Alter**: Admin attempts `update /contactMessages/msg-1` changing sender `email` or `message` body.
+17. **Unsafe Image Payload / SVG XSS Injection**: Admin attempts `update /siteSettings/home` or `/projects/proj-1` with `javascript:alert(1)` or `data:image/svg+xml;base64,...`.
 
 ## 3. Red Team Conflict Report
 - **Identity Spoofing**: Blocked — `updatedBy` / `createdBy` must equal `request.auth.uid`, and `isAdmin()` verifies `email_verified == true`.
 - **State Shortcutting / Enum Poisoning**: Blocked — `category`, `icon`, `language`, and `status` fields validate against explicit allowlists; public message creation forces `status == 'new'`.
-- **Resource Poisoning**: Blocked — `isValidId()` restricts document IDs; every string and array enforces explicit `.size()` bounds.
+- **Resource Poisoning**: Blocked — `isValidId()` restricts document IDs; every string, image ref, and array enforces explicit `.size()` bounds.
 - **Shadow Updates**: Blocked — `hasOnly` on `keys()` and `affectedKeys()` rejects any undeclared or immutable fields.
 - **PII Leak**: Blocked — `/admins` and `/contactMessages` contain personal email/contact data and are restricted strictly to `isAdmin()` for all reads.
+- **Stored Image XSS**: Blocked — `isValidImageRef()` allows only `https?://`, non-protocol-relative `/` paths, and raster `data:image/(jpeg|jpg|png|webp|gif);base64,...`.

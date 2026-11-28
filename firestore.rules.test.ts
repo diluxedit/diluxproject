@@ -4,12 +4,19 @@ import {
   ID_PATTERN,
   sanitizeSlug,
   sanitizeStringList,
+  serializeSiteHomePayload,
   serializeProjectPayload,
   serializeProductPayload,
   serializeArticlePayload,
   generateContactMessageId,
   serializeContactMessagePayload,
 } from './src/utils/cmsPayloads';
+import {
+  DEFAULT_BRAND_LOGO_URL,
+  DEFAULT_HERO_IMAGE_URL,
+  isSafeImageRef,
+  sanitizeImageRef,
+} from './src/utils/imageMedia';
 import {PROJECTS} from './src/data/projects';
 import {PRODUCTS} from './src/data/products';
 import {ARTICLES} from './src/data/articles';
@@ -20,6 +27,53 @@ test('sanitizeSlug blocks path traversal and enforces valid ID pattern', () => {
   assert.equal(ID_PATTERN.test(sanitizeSlug('bad..id/../../hack')), true);
   assert.equal(sanitizeSlug('My New Project 2026!'), 'my-new-project-2026');
   assert.equal(sanitizeSlug('   ', 'fallback-id'), 'fallback-id');
+});
+
+test('isSafeImageRef accepts valid paths, https URLs, and raster base64 data URIs while blocking XSS payloads', () => {
+  assert.equal(isSafeImageRef(DEFAULT_BRAND_LOGO_URL), true);
+  assert.equal(isSafeImageRef('https://example.com/photo.webp'), true);
+  assert.equal(isSafeImageRef('data:image/jpeg;base64,/9j/4AAQSkZJRg=='), true);
+  assert.equal(isSafeImageRef('data:image/png;base64,iVBORw0KGgo='), true);
+
+  assert.equal(isSafeImageRef(''), false);
+  assert.equal(isSafeImageRef('//evil.com/x.png'), false);
+  assert.equal(isSafeImageRef('javascript:alert(1)'), false);
+  assert.equal(isSafeImageRef('data:text/html,<script>alert(1)</script>'), false);
+  assert.equal(isSafeImageRef('data:image/svg+xml;base64,PHN2Zz4='), false);
+  assert.equal(
+    sanitizeImageRef('javascript:alert(1)', DEFAULT_HERO_IMAGE_URL),
+    DEFAULT_HERO_IMAGE_URL
+  );
+});
+
+test('serializeSiteHomePayload preserves valid custom brandLogoUrl and heroImageUrl and rejects unsafe ones', () => {
+  const payload = serializeSiteHomePayload(
+    {
+      heroEyebrowId: 'Digital Luxury Group',
+      heroEyebrowEn: 'Digital Luxury Group',
+      heroHeadlineId: 'Judul',
+      heroHeadlineEn: 'Headline',
+      heroDescriptionId: 'Desc ID',
+      heroDescriptionEn: 'Desc EN',
+      introTitleId: 'Siapa Kami',
+      introTitleEn: 'Who We Are',
+      introParagraph1Id: 'P1',
+      introParagraph1En: 'P1',
+      introParagraph2Id: 'P2',
+      introParagraph2En: 'P2',
+      ctaHeadlineId: 'CTA',
+      ctaHeadlineEn: 'CTA',
+      ctaDescriptionId: 'CTA Desc',
+      ctaDescriptionEn: 'CTA Desc',
+      brandLogoUrl: 'https://cdn.example.com/logo.png',
+      heroImageUrl: 'data:image/svg+xml;base64,PHN2Zz4=',
+    },
+    'admin-uid-1',
+    mockTimestamps
+  );
+
+  assert.equal(payload.brandLogoUrl, 'https://cdn.example.com/logo.png');
+  assert.equal(payload.heroImageUrl, DEFAULT_HERO_IMAGE_URL);
 });
 
 test('serializeProjectPayload enforces max field lengths and bounded arrays', () => {

@@ -4,6 +4,7 @@ import {useSearchParams} from 'react-router-dom';
 import {Button} from '../components/Button';
 import {ContactChannels} from '../components/ContactChannels';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
 import {OFFICIAL_CONTACT} from '../data/contact';
@@ -96,7 +97,7 @@ export function ContactPage() {
     <>
       <PageHead title={t.contact.pageTitle} description={t.contact.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.contact.headerKicker}
@@ -110,22 +111,23 @@ export function ContactPage() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F1F5F9]">
+      <section className="py-12 sm:py-16 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          <div className="lg:col-span-5 space-y-5">
+          <RevealSection delayIndex={0} className="lg:col-span-5 space-y-5">
             <h2 className="font-display text-xl font-bold text-[#0F172A]">
               {t.contact.channelsTitle}
             </h2>
             <ContactChannels />
-          </div>
+          </RevealSection>
 
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-xl p-6 sm:p-8">
+          <RevealSection delayIndex={1} variant="scale" className="lg:col-span-7">
+            <div className="liquid-glass-light rounded-2xl p-6 sm:p-8">
             <h2 className="font-display text-2xl font-bold text-[#0F172A]">
               {t.contact.formTitle}
             </h2>
             <p className="mt-1.5 text-sm text-[#64748B]">{t.contact.formSubtitle}</p>
 
-            <div className="mt-5 rounded-xl bg-[#F1F5F9] border border-slate-200 p-4 flex items-start gap-3">
+            <div className="mt-5 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 ring-1 ring-slate-900/5 p-4 flex items-start gap-3">
               <ShieldCheck
                 className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5"
                 aria-hidden="true"
@@ -143,7 +145,7 @@ export function ContactPage() {
             {submittedRecord ? (
               <div
                 role="status"
-                className="mt-6 rounded-xl bg-[#F1F5F9] border border-[#2563EB]/30 p-6 space-y-4"
+                className="mt-6 rounded-xl bg-white/75 backdrop-blur-md border border-[#2563EB]/30 p-6 space-y-4 shadow-sm"
               >
                 <div className="flex items-start gap-3">
                   <CheckCircle2
@@ -160,7 +162,7 @@ export function ContactPage() {
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-white border border-slate-200 p-4 text-xs text-[#0F172A] space-y-1.5">
+                <div className="rounded-xl bg-white/85 border border-slate-200/80 p-4 text-xs text-[#0F172A] space-y-1.5">
                   <p>
                     <span className="text-[#64748B]">{t.contact.referenceIdLabel}: </span>
                     <span className="font-mono-tabular font-semibold">{submittedRecord.id}</span>
@@ -206,7 +208,7 @@ export function ContactPage() {
                 {submitError && (
                   <div
                     role="alert"
-                    className="rounded-lg bg-red-50 border border-red-200 p-3.5 text-xs text-red-700"
+                    className="rounded-lg bg-red-50/90 border border-red-200 p-3.5 text-xs text-red-700"
                   >
                     {submitError}
                   </div>
@@ -229,7 +231,7 @@ export function ContactPage() {
                       onChange={handleChange('fullName')}
                       placeholder={t.contact.fullNamePlaceholder}
                       aria-invalid={Boolean(errors.fullName)}
-                      className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 bg-white text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+                      className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200/90 bg-white/80 backdrop-blur-sm text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
                     />
                     {errors.fullName && (
                       <p className="mt-1.5 text-xs text-red-600">{errors.fullName}</p>
@@ -252,7 +254,7 @@ export function ContactPage() {
                       onChange={handleChange('email')}
                       placeholder={t.contact.emailPlaceholder}
                       aria-invalid={Boolean(errors.email)}
-                      className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 bg-white text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+                      className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200/90 bg-white/80 backdrop-blur-sm text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
                     />
                     {errors.email && (
                       <p className="mt-1.5 text-xs text-red-600">{errors.email}</p>
@@ -276,7 +278,7 @@ export function ContactPage() {
                     onChange={handleChange('subject')}
                     placeholder={t.contact.subjectPlaceholder}
                     aria-invalid={Boolean(errors.subject)}
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 bg-white text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200/90 bg-white/80 backdrop-blur-sm text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
                   />
                   {errors.subject && (
                     <p className="mt-1.5 text-xs text-red-600">{errors.subject}</p>
@@ -299,7 +301,7 @@ export function ContactPage() {
                     onChange={handleChange('message')}
                     placeholder={t.contact.messagePlaceholder}
                     aria-invalid={Boolean(errors.message)}
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 bg-white text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 resize-y"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200/90 bg-white/80 backdrop-blur-sm text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 resize-y"
                   />
                   {errors.message && (
                     <p className="mt-1.5 text-xs text-red-600">{errors.message}</p>
@@ -316,7 +318,8 @@ export function ContactPage() {
                 </div>
               </form>
             )}
-          </div>
+            </div>
+          </RevealSection>
         </div>
       </section>
     </>

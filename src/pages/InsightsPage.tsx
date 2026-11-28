@@ -4,6 +4,7 @@ import {Link, useParams} from 'react-router-dom';
 import {Button} from '../components/Button';
 import {ArticleCard} from '../components/Cards';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
 import {SafeImage} from '../components/SafeImage';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
@@ -30,16 +31,18 @@ export function InsightsPage() {
 
   if (slug && !selectedArticle) {
     return (
-      <section className="py-20 bg-white">
+      <section className="py-20 dilux-glass-canvas-soft">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1 className="font-display text-2xl font-bold text-[#0F172A]">
-            {t.insights.headerTitle}
-          </h1>
-          <div className="mt-6">
-            <Button to="/insights" variant="primary">
-              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              <span>{t.insights.backToInsights}</span>
-            </Button>
+          <div className="liquid-glass-light rounded-2xl p-10">
+            <h1 className="font-display text-2xl font-bold text-[#0F172A]">
+              {t.insights.headerTitle}
+            </h1>
+            <div className="mt-6">
+              <Button to="/insights" variant="primary">
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                <span>{t.insights.backToInsights}</span>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -57,8 +60,8 @@ export function InsightsPage() {
           description={localize(selectedArticle.excerpt)}
         />
 
-        <article className="bg-white">
-          <header className="bg-[#0B1428] text-white py-12 sm:py-16">
+        <article className="dilux-glass-canvas-soft">
+          <header className="dilux-glass-canvas-dark text-white py-12 sm:py-16">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
               <Link
                 to="/insights"
@@ -95,43 +98,53 @@ export function InsightsPage() {
           </header>
 
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-            <div className="aspect-[16/9] w-full rounded-xl overflow-hidden border border-slate-200 bg-[#0B1428] mb-10">
-              <SafeImage
-                src={selectedArticle.image}
-                alt={localize(selectedArticle.imageAlt)}
-                className="w-full h-full object-cover"
-                eager
-              />
-            </div>
+            <RevealSection variant="scale">
+              <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/80 shadow-lg ring-1 ring-slate-900/10 bg-[#0B1428] mb-10 liquid-glass-sheen">
+                <SafeImage
+                  src={selectedArticle.image}
+                  alt={localize(selectedArticle.imageAlt)}
+                  className="w-full h-full object-cover"
+                  eager
+                />
+              </div>
+            </RevealSection>
 
-            <p className="text-lg text-[#0F172A] font-medium leading-relaxed mb-8 pb-8 border-b border-slate-200">
-              {localize(selectedArticle.excerpt)}
-            </p>
+            <RevealSection>
+              <p className="text-lg text-[#0F172A] font-medium leading-relaxed mb-8 pb-8 border-b border-slate-200/80">
+                {localize(selectedArticle.excerpt)}
+              </p>
+            </RevealSection>
 
             <div className="space-y-8 max-w-3xl">
-              {selectedArticle.sections.map((section) => (
-                <section key={localize(section.heading)}>
-                  <h2 className="font-display text-2xl font-bold text-[#0F172A] mb-3">
-                    {localize(section.heading)}
-                  </h2>
-                  <p className="text-base text-[#0F172A]/85 leading-[1.75]">
-                    {localize(section.body)}
-                  </p>
-                </section>
+              {selectedArticle.sections.map((section, idx) => (
+                <RevealSection key={localize(section.heading)} delayIndex={idx}>
+                  <section>
+                    <h2 className="font-display text-2xl font-bold text-[#0F172A] mb-3">
+                      {localize(section.heading)}
+                    </h2>
+                    <p className="text-base text-[#0F172A]/85 leading-[1.75]">
+                      {localize(section.body)}
+                    </p>
+                  </section>
+                </RevealSection>
               ))}
             </div>
           </div>
         </article>
 
         {related.length > 0 && (
-          <section className="py-14 sm:py-16 bg-[#F1F5F9] border-t border-slate-200">
+          <section className="py-14 sm:py-16 dilux-glass-canvas-light border-t border-slate-200/70">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="font-display text-2xl font-bold text-[#0F172A] mb-8">
-                {t.insights.relatedArticles}
-              </h2>
+              <RevealSection>
+                <h2 className="font-display text-2xl font-bold text-[#0F172A] mb-8">
+                  {t.insights.relatedArticles}
+                </h2>
+              </RevealSection>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {related.map((item) => (
-                  <ArticleCard key={item.id} article={item} />
+                {related.map((item, idx) => (
+                  <RevealSection key={item.id} delayIndex={idx} variant="scale" className="flex">
+                    <ArticleCard article={item} />
+                  </RevealSection>
                 ))}
               </div>
             </div>
@@ -147,7 +160,7 @@ export function InsightsPage() {
     <>
       <PageHead title={t.insights.pageTitle} description={t.insights.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.insights.headerKicker}
@@ -161,37 +174,43 @@ export function InsightsPage() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F1F5F9]">
+      <section className="py-12 sm:py-16 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 rounded-xl bg-white border border-slate-200 p-4 sm:p-5 flex items-start gap-3">
-            <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-sm text-[#0F172A] leading-relaxed">{t.insights.demoBanner}</p>
-          </div>
+          <RevealSection delayIndex={0}>
+            <div className="mb-8 rounded-2xl liquid-glass-light p-4 sm:p-5 flex items-start gap-3">
+              <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="text-sm text-[#0F172A] leading-relaxed">{t.insights.demoBanner}</p>
+            </div>
+          </RevealSection>
 
-          <div
-            role="group"
-            aria-label="Article categories"
-            className="inline-flex flex-wrap items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded-xl mb-8"
-          >
-            {ARTICLE_CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                type="button"
-                onClick={() => setActiveCategory(cat.value)}
-                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                  activeCategory === cat.value
-                    ? 'bg-[#0B1428] text-white'
-                    : 'text-[#64748B] hover:text-[#0F172A]'
-                }`}
-              >
-                {language === 'id' ? cat.idLabel : cat.enLabel}
-              </button>
-            ))}
-          </div>
+          <RevealSection delayIndex={1}>
+            <div
+              role="group"
+              aria-label="Article categories"
+              className="inline-flex flex-wrap items-center gap-1.5 p-1.5 liquid-glass-control rounded-2xl mb-8"
+            >
+              {ARTICLE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.value)}
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap ${
+                    activeCategory === cat.value
+                      ? 'bg-[#0B1428] text-white shadow-sm'
+                      : 'text-[#64748B] hover:text-[#0F172A] hover:bg-white/60'
+                  }`}
+                >
+                  {language === 'id' ? cat.idLabel : cat.enLabel}
+                </button>
+              ))}
+            </div>
+          </RevealSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
+            {filteredArticles.map((article, idx) => (
+              <RevealSection key={`${activeCategory}-${article.id}`} delayIndex={idx} variant="scale" className="flex">
+                <ArticleCard article={article} />
+              </RevealSection>
             ))}
           </div>
         </div>

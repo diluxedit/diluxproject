@@ -4,6 +4,7 @@ import {Link, useParams} from 'react-router-dom';
 import {Button} from '../components/Button';
 import {ProjectCard} from '../components/Cards';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
 import {SafeImage} from '../components/SafeImage';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
@@ -29,16 +30,18 @@ export function ProjectsPage() {
 
   if (slug && !selectedProject) {
     return (
-      <section className="py-20 bg-white">
+      <section className="py-20 dilux-glass-canvas-soft">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1 className="font-display text-2xl font-bold text-[#0F172A]">
-            {t.projects.headerTitle}
-          </h1>
-          <div className="mt-6">
-            <Button to="/projects" variant="primary">
-              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              <span>{t.projects.backToProjects}</span>
-            </Button>
+          <div className="liquid-glass-light rounded-2xl p-10">
+            <h1 className="font-display text-2xl font-bold text-[#0F172A]">
+              {t.projects.headerTitle}
+            </h1>
+            <div className="mt-6">
+              <Button to="/projects" variant="primary">
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                <span>{t.projects.backToProjects}</span>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -56,7 +59,7 @@ export function ProjectsPage() {
           description={localize(selectedProject.shortDescription)}
         />
 
-        <section className="bg-[#0B1428] text-white py-12 sm:py-16">
+        <section className="dilux-glass-canvas-dark text-white py-12 sm:py-16">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <Link
               to="/projects"
@@ -89,40 +92,43 @@ export function ProjectsPage() {
           </div>
         </section>
 
-        <section className="py-12 sm:py-16 bg-white">
+        <section className="py-12 sm:py-16 dilux-glass-canvas-soft">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="aspect-[16/9] w-full rounded-xl overflow-hidden border border-slate-200 bg-[#0B1428] mb-10">
-              <SafeImage
-                src={selectedProject.image}
-                alt={localize(selectedProject.imageAlt)}
-                className="w-full h-full object-cover"
-                eager
-              />
-            </div>
+            <RevealSection variant="scale">
+              <div className="aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/80 shadow-lg ring-1 ring-slate-900/10 bg-[#0B1428] mb-10 liquid-glass-sheen">
+                <SafeImage
+                  src={selectedProject.image}
+                  alt={localize(selectedProject.imageAlt)}
+                  className="w-full h-full object-cover"
+                  eager
+                />
+              </div>
+            </RevealSection>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
               <div className="lg:col-span-8 space-y-8">
-                <div>
+                <RevealSection delayIndex={0}>
                   <h2 className="font-display text-2xl font-bold text-[#0F172A]">
                     {t.projects.overviewTitle}
                   </h2>
                   <p className="mt-3 text-base text-[#0F172A] leading-relaxed">
                     {localize(selectedProject.overview)}
                   </p>
-                </div>
+                </RevealSection>
 
-                <div className="pt-6 border-t border-slate-200">
+                <RevealSection delayIndex={1} className="pt-6 border-t border-slate-200/80">
                   <h2 className="font-display text-xl font-bold text-[#0F172A]">
                     {t.projects.architectureTitle}
                   </h2>
                   <p className="mt-3 text-base text-[#64748B] leading-relaxed">
                     {localize(selectedProject.architectureNotes)}
                   </p>
-                </div>
+                </RevealSection>
               </div>
 
               <aside className="lg:col-span-4">
-                <div className="rounded-xl bg-[#F1F5F9] border border-slate-200 p-6 space-y-5">
+                <RevealSection delayIndex={1} variant="scale">
+                  <div className="rounded-2xl liquid-glass-light p-6 space-y-5">
                   <div>
                     <p className="text-xs font-medium text-[#64748B]">{t.common.statusLabel}</p>
                     <p className="mt-1 text-sm font-semibold text-[#0F172A]">
@@ -166,7 +172,8 @@ export function ProjectsPage() {
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </Button>
                   </div>
-                </div>
+                  </div>
+                </RevealSection>
               </aside>
             </div>
           </div>
@@ -181,7 +188,7 @@ export function ProjectsPage() {
     <>
       <PageHead title={t.projects.pageTitle} description={t.projects.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.projects.headerKicker}
@@ -195,42 +202,50 @@ export function ProjectsPage() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F1F5F9]">
+      <section className="py-12 sm:py-16 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 rounded-xl bg-white border border-slate-200 p-4 sm:p-5 flex items-start gap-3">
-            <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
-            <p className="text-sm text-[#0F172A] leading-relaxed">{t.projects.demoBanner}</p>
-          </div>
+          <RevealSection delayIndex={0}>
+            <div className="mb-8 rounded-2xl liquid-glass-light p-4 sm:p-5 flex items-start gap-3">
+              <Info className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="text-sm text-[#0F172A] leading-relaxed">{t.projects.demoBanner}</p>
+            </div>
+          </RevealSection>
 
-          <div
-            role="group"
-            aria-label="Project category filters"
-            className="inline-flex flex-wrap items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded-xl mb-8"
-          >
-            {PROJECT_CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                type="button"
-                onClick={() => setActiveCategory(cat.value)}
-                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                  activeCategory === cat.value
-                    ? 'bg-[#0B1428] text-white'
-                    : 'text-[#64748B] hover:text-[#0F172A]'
-                }`}
-              >
-                {language === 'id' ? cat.idLabel : cat.enLabel}
-              </button>
-            ))}
-          </div>
+          <RevealSection delayIndex={1}>
+            <div
+              role="group"
+              aria-label="Project category filters"
+              className="inline-flex flex-wrap items-center gap-1.5 p-1.5 liquid-glass-control rounded-2xl mb-8"
+            >
+              {PROJECT_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.value)}
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap ${
+                    activeCategory === cat.value
+                      ? 'bg-[#0B1428] text-white shadow-sm'
+                      : 'text-[#64748B] hover:text-[#0F172A] hover:bg-white/60'
+                  }`}
+                >
+                  {language === 'id' ? cat.idLabel : cat.enLabel}
+                </button>
+              ))}
+            </div>
+          </RevealSection>
 
           {filteredProjects.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-xl p-10 text-center text-sm text-[#64748B]">
-              {t.projects.emptyFilter}
-            </div>
+            <RevealSection>
+              <div className="liquid-glass-light rounded-2xl p-10 text-center text-sm text-[#64748B]">
+                {t.projects.emptyFilter}
+              </div>
+            </RevealSection>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+              {filteredProjects.map((project, idx) => (
+                <RevealSection key={`${activeCategory}-${project.id}`} delayIndex={idx} variant="scale" className="flex">
+                  <ProjectCard project={project} />
+                </RevealSection>
               ))}
             </div>
           )}

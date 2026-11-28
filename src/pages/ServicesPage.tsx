@@ -5,6 +5,7 @@ import {Button} from '../components/Button';
 import {ServiceCard} from '../components/Cards';
 import {ServiceIcon} from '../components/Icons';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
 import type {DivisionId, ServiceItem} from '../types';
@@ -41,7 +42,7 @@ export function ServicesPage() {
     <>
       <PageHead title={t.services.pageTitle} description={t.services.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.services.headerKicker}
@@ -55,58 +56,63 @@ export function ServicesPage() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[#F1F5F9]">
+      <section className="py-12 sm:py-16 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <p className="text-sm font-medium text-[#64748B]">
-              {t.services.filterByDivision}
-            </p>
-            <div
-              role="group"
-              aria-label={t.services.filterByDivision}
-              className="flex flex-wrap items-center gap-1.5 p-1.5 bg-white border border-slate-200 rounded-xl"
-            >
-              <button
-                type="button"
-                onClick={() => setActiveDivision('All')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                  activeDivision === 'All'
-                    ? 'bg-[#0B1428] text-white'
-                    : 'text-[#64748B] hover:text-[#0F172A]'
-                }`}
+          <RevealSection>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <p className="text-sm font-medium text-[#64748B]">
+                {t.services.filterByDivision}
+              </p>
+              <div
+                role="group"
+                aria-label={t.services.filterByDivision}
+                className="flex flex-wrap items-center gap-1.5 p-1.5 liquid-glass-control rounded-2xl"
               >
-                {t.common.allCategories}
-              </button>
-              {divisions.map((div) => (
                 <button
-                  key={div.id}
                   type="button"
-                  onClick={() => setActiveDivision(div.id)}
+                  onClick={() => setActiveDivision('All')}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                    activeDivision === div.id
+                    activeDivision === 'All'
                       ? 'bg-[#0B1428] text-white'
                       : 'text-[#64748B] hover:text-[#0F172A]'
                   }`}
                 >
-                  {div.name}
+                  {t.common.allCategories}
                 </button>
-              ))}
+                {divisions.map((div) => (
+                  <button
+                    key={div.id}
+                    type="button"
+                    onClick={() => setActiveDivision(div.id)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                      activeDivision === div.id
+                        ? 'bg-[#0B1428] text-white'
+                        : 'text-[#64748B] hover:text-[#0F172A]'
+                    }`}
+                  >
+                    {div.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          </RevealSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredServices.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                onLearnMore={(item) => setSelectedService(item)}
-              />
+            {filteredServices.map((service, idx) => (
+              <RevealSection key={`${activeDivision}-${service.id}`} delayIndex={idx} variant="scale" className="flex">
+                <ServiceCard
+                  service={service}
+                  onLearnMore={(item) => setSelectedService(item)}
+                />
+              </RevealSection>
             ))}
           </div>
 
-          <p className="mt-10 text-sm text-[#64748B] border-t border-slate-200 pt-6">
-            {t.services.transparencyNote}
-          </p>
+          <RevealSection delayIndex={1}>
+            <p className="mt-10 text-sm text-[#64748B] border-t border-slate-200 pt-6">
+              {t.services.transparencyNote}
+            </p>
+          </RevealSection>
         </div>
       </section>
 
@@ -115,9 +121,9 @@ export function ServicesPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="service-detail-title"
-          className="fixed inset-0 z-50 bg-[#0B1428]/70 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#0B1428]/60 backdrop-blur-md flex items-center justify-center p-4"
         >
-          <div className="bg-white rounded-xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-2xl rounded-2xl border border-white/95 ring-1 ring-slate-900/10 max-w-lg w-full p-6 sm:p-8 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#0B1428] text-[#60A5FA] flex items-center justify-center shrink-0">

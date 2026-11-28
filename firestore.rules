@@ -47,6 +47,17 @@ service cloud.firestore {
       return val is string && val.size() >= minLen && val.size() <= maxLen;
     }
 
+    function isValidImageRef(val) {
+      return val is string &&
+        val.size() >= 1 &&
+        val.size() <= 450000 &&
+        (
+          val.matches('^https?://[^\\s]+$') ||
+          val.matches('^/([^/][^\\s]*)?$') ||
+          val.matches('^data:image/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$')
+        );
+    }
+
     function isStringList(val, maxItems, maxItemLen) {
       return val is list &&
         val.size() <= maxItems &&
@@ -79,6 +90,7 @@ service cloud.firestore {
           'heroDescriptionId', 'heroDescriptionEn', 'introTitleId', 'introTitleEn',
           'introParagraph1Id', 'introParagraph1En', 'introParagraph2Id', 'introParagraph2En',
           'ctaHeadlineId', 'ctaHeadlineEn', 'ctaDescriptionId', 'ctaDescriptionEn',
+          'brandLogoUrl', 'heroImageUrl',
           'updatedBy', 'createdAt', 'updatedAt'
         ]) &&
         data.keys().hasOnly([
@@ -86,6 +98,7 @@ service cloud.firestore {
           'heroDescriptionId', 'heroDescriptionEn', 'introTitleId', 'introTitleEn',
           'introParagraph1Id', 'introParagraph1En', 'introParagraph2Id', 'introParagraph2En',
           'ctaHeadlineId', 'ctaHeadlineEn', 'ctaDescriptionId', 'ctaDescriptionEn',
+          'brandLogoUrl', 'heroImageUrl',
           'updatedBy', 'createdAt', 'updatedAt'
         ]) &&
         isStr(data.heroEyebrowId, 1, 120) &&
@@ -104,6 +117,8 @@ service cloud.firestore {
         isStr(data.ctaHeadlineEn, 1, 200) &&
         isStr(data.ctaDescriptionId, 1, 500) &&
         isStr(data.ctaDescriptionEn, 1, 500) &&
+        isValidImageRef(data.brandLogoUrl) &&
+        isValidImageRef(data.heroImageUrl) &&
         data.updatedBy == request.auth.uid &&
         data.createdAt is timestamp &&
         data.updatedAt is timestamp;
@@ -196,7 +211,7 @@ service cloud.firestore {
         isStr(data.categoryLabelEn, 1, 80) &&
         isStr(data.statusId, 1, 80) &&
         isStr(data.statusEn, 1, 80) &&
-        isStr(data.image, 1, 500) &&
+        isValidImageRef(data.image) &&
         isStr(data.imageAltId, 1, 240) &&
         isStr(data.imageAltEn, 1, 240) &&
         isStr(data.shortDescriptionId, 1, 600) &&
@@ -240,7 +255,7 @@ service cloud.firestore {
         isStr(data.year, 4, 16) &&
         isStr(data.statusId, 1, 80) &&
         isStr(data.statusEn, 1, 80) &&
-        isStr(data.image, 1, 500) &&
+        isValidImageRef(data.image) &&
         isStr(data.imageAltId, 1, 240) &&
         isStr(data.imageAltEn, 1, 240) &&
         isStr(data.shortDescriptionId, 1, 600) &&
@@ -287,7 +302,7 @@ service cloud.firestore {
         isStr(data.publishedLabelId, 1, 64) &&
         isStr(data.publishedLabelEn, 1, 64) &&
         data.readingMinutes is number && data.readingMinutes >= 1 && data.readingMinutes <= 120 &&
-        isStr(data.image, 1, 500) &&
+        isValidImageRef(data.image) &&
         isStr(data.imageAltId, 1, 240) &&
         isStr(data.imageAltEn, 1, 240) &&
         isStr(data.author, 1, 120) &&
@@ -357,6 +372,7 @@ service cloud.firestore {
           'heroDescriptionId', 'heroDescriptionEn', 'introTitleId', 'introTitleEn',
           'introParagraph1Id', 'introParagraph1En', 'introParagraph2Id', 'introParagraph2En',
           'ctaHeadlineId', 'ctaHeadlineEn', 'ctaDescriptionId', 'ctaDescriptionEn',
+          'brandLogoUrl', 'heroImageUrl',
           'updatedBy', 'updatedAt'
         ]);
       allow delete: if isValidId(settingId) && isAdmin();

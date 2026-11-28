@@ -14,6 +14,12 @@ import type {
   ServiceItem,
 } from '../types';
 
+import {
+  DEFAULT_BRAND_LOGO_URL,
+  DEFAULT_HERO_IMAGE_URL,
+  sanitizeImageRef,
+} from './imageMedia';
+
 export interface SiteHomeSettings {
   heroEyebrowId: string;
   heroEyebrowEn: string;
@@ -31,6 +37,8 @@ export interface SiteHomeSettings {
   ctaHeadlineEn: string;
   ctaDescriptionId: string;
   ctaDescriptionEn: string;
+  brandLogoUrl: string;
+  heroImageUrl: string;
 }
 
 export const ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
@@ -82,6 +90,8 @@ export function serializeSiteHomePayload(
     ctaHeadlineEn: clampStr(input.ctaHeadlineEn, 200),
     ctaDescriptionId: clampStr(input.ctaDescriptionId, 500),
     ctaDescriptionEn: clampStr(input.ctaDescriptionEn, 500),
+    brandLogoUrl: sanitizeImageRef(input.brandLogoUrl, DEFAULT_BRAND_LOGO_URL),
+    heroImageUrl: sanitizeImageRef(input.heroImageUrl, DEFAULT_HERO_IMAGE_URL),
     updatedBy: uid,
     createdAt: timestamps.createdAt,
     updatedAt: timestamps.updatedAt,
@@ -106,7 +116,7 @@ export function serializeProjectPayload(
     year: clampStr(project.year, 16, '2026').padStart(4, '2'),
     statusId: clampStr(project.status.id, 80),
     statusEn: clampStr(project.status.en, 80),
-    image: clampStr(project.image, 500, '/src/assets/images/project_web_platform_1795578912321.jpg'),
+    image: sanitizeImageRef(project.image, '/src/assets/images/project_web_platform_1795578912321.jpg'),
     imageAltId: clampStr(project.imageAlt.id, 240),
     imageAltEn: clampStr(project.imageAlt.en, 240),
     shortDescriptionId: clampStr(project.shortDescription.id, 600),
@@ -138,7 +148,7 @@ export function serializeProductPayload(
     categoryLabelEn: clampStr(product.categoryLabel.en, 80),
     statusId: clampStr(product.status.id, 80),
     statusEn: clampStr(product.status.en, 80),
-    image: clampStr(product.image, 500, '/src/assets/images/project_web_platform_1795578912321.jpg'),
+    image: sanitizeImageRef(product.image, '/src/assets/images/project_web_platform_1795578912321.jpg'),
     imageAltId: clampStr(product.imageAlt.id, 240),
     imageAltEn: clampStr(product.imageAlt.en, 240),
     shortDescriptionId: clampStr(product.shortDescription.id, 600),
@@ -187,7 +197,7 @@ export function serializeArticlePayload(
     publishedLabelId: clampStr(article.publishedLabel.id, 64),
     publishedLabelEn: clampStr(article.publishedLabel.en, 64),
     readingMinutes: Math.max(1, Math.min(120, Number(article.readingMinutes || 3))),
-    image: clampStr(article.image, 500, '/src/assets/images/insight_engineering_arch_1795578912165.jpg'),
+    image: sanitizeImageRef(article.image, '/src/assets/images/insight_engineering_arch_1795578912165.jpg'),
     imageAltId: clampStr(article.imageAlt.id, 240),
     imageAltEn: clampStr(article.imageAlt.en, 240),
     author: clampStr(article.author, 120, 'DILUX EDITORIAL'),

@@ -1,5 +1,5 @@
 import {Layers} from 'lucide-react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 interface SafeImageProps {
   src: string;
@@ -10,6 +10,10 @@ interface SafeImageProps {
 
 export function SafeImage({src, alt, className = '', eager = false}: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
 
   if (hasError || !src) {
     return (

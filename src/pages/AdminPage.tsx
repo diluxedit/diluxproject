@@ -4,6 +4,7 @@ import {
   Database,
   ExternalLink,
   FolderKanban,
+  Image as ImageIcon,
   Layers,
   LayoutDashboard,
   Loader2,
@@ -23,7 +24,9 @@ import {
 import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import firebaseConfig from '../../firebase-applet-config.json';
+import {ImagePickerField} from '../components/ImagePickerField';
 import {PageHead} from '../components/PageHead';
+import {SafeImage} from '../components/SafeImage';
 import {BOOTSTRAPPED_ADMIN_EMAIL, useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
 import type {
@@ -40,31 +43,21 @@ import type {
   ServiceItem,
 } from '../types';
 import {type SiteHomeSettings, sanitizeSlug} from '../utils/cmsPayloads';
+import {
+  DEFAULT_BRAND_LOGO_URL,
+  DEFAULT_HERO_IMAGE_URL,
+  PRESET_IMAGE_ASSETS,
+} from '../utils/imageMedia';
 
-type AdminTab = 'home' | 'projects' | 'products' | 'insights' | 'divisions' | 'messages' | 'admins';
-
-const ASSET_IMAGE_OPTIONS = [
-  {
-    value: '/src/assets/images/project_web_platform_1795578912321.jpg',
-    label: 'Web Platform Architecture',
-  },
-  {
-    value: '/src/assets/images/project_network_infra_1795578911622.jpg',
-    label: 'Network Infrastructure Topology',
-  },
-  {
-    value: '/src/assets/images/project_brand_system_1795578912566.jpg',
-    label: 'Brand & UI/UX System',
-  },
-  {
-    value: '/src/assets/images/insight_engineering_arch_1795578912165.jpg',
-    label: 'Engineering & Editorial Cover',
-  },
-  {
-    value: '/src/assets/images/hero_dilux_tech_1795578910701.jpg',
-    label: 'DILUX Technology Hero',
-  },
-];
+type AdminTab =
+  | 'home'
+  | 'media'
+  | 'projects'
+  | 'products'
+  | 'insights'
+  | 'divisions'
+  | 'messages'
+  | 'admins';
 
 const PROJECT_CATEGORY_MAP: Record<ProjectCategory, {id: string; en: string}> = {
   Website: {id: 'Website', en: 'Website'},
@@ -126,7 +119,7 @@ function createEmptyProject(): ProjectItem {
     divisionId: 'dilux-development',
     year: '2026',
     status: {id: 'Aktif', en: 'Active'},
-    image: ASSET_IMAGE_OPTIONS[0].value,
+    image: PRESET_IMAGE_ASSETS[2].value,
     imageAlt: {id: 'Pratinjau proyek DILUX GROUP', en: 'DILUX GROUP project preview'},
     shortDescription: {id: '', en: ''},
     overview: {id: '', en: ''},
@@ -147,7 +140,7 @@ function createEmptyProduct(): ProductItem {
     category: 'Web Applications',
     categoryLabel: {id: 'Aplikasi Web', en: 'Web Applications'},
     status: {id: 'Rilis Aktif', en: 'Active Release'},
-    image: ASSET_IMAGE_OPTIONS[0].value,
+    image: PRESET_IMAGE_ASSETS[2].value,
     imageAlt: {id: 'Pratinjau produk digital DILUX GROUP', en: 'DILUX GROUP digital product preview'},
     shortDescription: {id: '', en: ''},
     fullDescription: {id: '', en: ''},
@@ -170,7 +163,7 @@ function createEmptyArticle(): ArticleItem {
     publishedAt: new Date().toISOString().slice(0, 10),
     publishedLabel: {id: 'November 2026', en: 'November 2026'},
     readingMinutes: 4,
-    image: ASSET_IMAGE_OPTIONS[3].value,
+    image: PRESET_IMAGE_ASSETS[5].value,
     imageAlt: {id: 'Ilustrasi artikel DILUX GROUP', en: 'DILUX GROUP article illustration'},
     author: 'DILUX EDITORIAL',
     sections: [
@@ -198,7 +191,7 @@ function createEmptyService(): ServiceItem {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 text-sm text-[#0F172A] bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]';
+  'w-full px-3.5 py-2.5 text-sm text-[#0F172A] bg-white/85 backdrop-blur-sm border border-slate-200/90 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]';
 const labelClass = 'block text-xs font-semibold text-[#0F172A] mb-1.5';
 
 export function AdminPage() {
@@ -291,6 +284,14 @@ export function AdminPage() {
   const [newAdminUid, setNewAdminUid] = useState('');
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminLabel, setNewAdminLabel] = useState('');
+
+  // Quick image drafts for the Media & Images manager tab
+  const [mediaDrafts, setMediaDrafts] = useState<Record<string, string>>({});
+  const getMediaDraft = (key: string, currentValue: string) =>
+    key in mediaDrafts ? mediaDrafts[key] : currentValue;
+  const setMediaDraft = (key: string, nextValue: string) => {
+    setMediaDrafts((prev) => ({...prev, [key]: nextValue}));
+  };
 
   const notify = (type: 'success' | 'error', text: string) => {
     setStatusMessage({type, text});
@@ -696,11 +697,53 @@ export function AdminPage() {
     }
   };
 
+  const handleSaveProjectImage = async (proj: ProjectItem) => {
+    setBusyAction(true);
+    setStatusMessage(null);
+    try {
+      const nextImage = getMediaDraft(`proj:${proj.id}`, proj.image);
+      await saveProject({...proj, image: nextImage}, false);
+      notify('success', t.admin.saveSuccess);
+    } catch (err) {
+      notify('error', err instanceof Error ? err.message : t.admin.actionError);
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
+  const handleSaveProductImage = async (prod: ProductItem) => {
+    setBusyAction(true);
+    setStatusMessage(null);
+    try {
+      const nextImage = getMediaDraft(`prod:${prod.id}`, prod.image);
+      await saveProduct({...prod, image: nextImage}, false);
+      notify('success', t.admin.saveSuccess);
+    } catch (err) {
+      notify('error', err instanceof Error ? err.message : t.admin.actionError);
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
+  const handleSaveArticleImage = async (art: ArticleItem) => {
+    setBusyAction(true);
+    setStatusMessage(null);
+    try {
+      const nextImage = getMediaDraft(`art:${art.id}`, art.image);
+      await saveArticle({...art, image: nextImage}, false);
+      notify('success', t.admin.saveSuccess);
+    } catch (err) {
+      notify('error', err instanceof Error ? err.message : t.admin.actionError);
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
   return (
     <>
       <PageHead title={t.admin.pageTitle} description={t.admin.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-12 sm:py-16">
+      <section className="dilux-glass-canvas-dark text-white py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-2">
@@ -718,7 +761,7 @@ export function AdminPage() {
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               <Link
                 to="/"
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-200 border border-white/15 rounded-lg hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-200 border border-white/20 rounded-xl hover:bg-white/10 transition-colors"
               >
                 <span>{t.admin.backToSite}</span>
                 <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
@@ -726,7 +769,7 @@ export function AdminPage() {
               <button
                 type="button"
                 onClick={() => void signOutAdmin()}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#142B4D] border border-white/20 rounded-lg hover:bg-[#1E3A63] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white liquid-glass-control-dark rounded-xl hover:bg-white/15 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{t.admin.signOut}</span>
@@ -736,11 +779,11 @@ export function AdminPage() {
         </div>
       </section>
 
-      <section className="py-10 sm:py-14 bg-[#F1F5F9] min-h-[60vh]">
+      <section className="py-10 sm:py-14 dilux-glass-canvas-light min-h-[60vh]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Loading */}
           {(!authReady || !adminCheckReady) && (
-            <div className="bg-white border border-slate-200 rounded-xl p-10 flex items-center justify-center gap-3 text-sm text-[#64748B]">
+            <div className="liquid-glass-light rounded-2xl p-10 flex items-center justify-center gap-3 text-sm text-[#64748B]">
               <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" aria-hidden="true" />
               <span>{t.admin.loadingStatus}</span>
             </div>
@@ -748,8 +791,8 @@ export function AdminPage() {
 
           {/* Signed Out -> Login View */}
           {authReady && adminCheckReady && !user && (
-            <div className="max-w-xl mx-auto bg-white border border-slate-200 rounded-xl p-8 sm:p-10">
-              <div className="w-12 h-12 rounded-xl bg-[#0B1428] text-[#60A5FA] flex items-center justify-center mb-5">
+            <div className="max-w-xl mx-auto liquid-glass-light rounded-2xl p-8 sm:p-10">
+              <div className="w-12 h-12 rounded-xl bg-[#0B1428] text-[#60A5FA] flex items-center justify-center mb-5 shadow-md">
                 <Lock className="w-6 h-6" aria-hidden="true" />
               </div>
               <h2 className="font-display text-2xl font-bold text-[#0F172A]">
@@ -760,7 +803,7 @@ export function AdminPage() {
               </p>
 
               {isInIframe && (
-                <div className="mt-5 p-4 rounded-lg bg-[#F1F5F9] border border-slate-200 space-y-3">
+                <div className="mt-5 p-4 rounded-xl bg-white/65 border border-white/80 ring-1 ring-slate-900/5 space-y-3">
                   <p className="text-xs text-[#0F172A] leading-relaxed">{t.admin.iframeNotice}</p>
                   <a
                     href={typeof window !== 'undefined' ? window.location.href : '/admin'}
@@ -857,7 +900,7 @@ export function AdminPage() {
 
           {/* Signed In -> Not Admin */}
           {authReady && adminCheckReady && user && !isAdmin && (
-            <div className="max-w-xl mx-auto bg-white border border-red-200 rounded-xl p-8 sm:p-10 space-y-5">
+            <div className="max-w-xl mx-auto liquid-glass-light border-red-200/80 rounded-2xl p-8 sm:p-10 space-y-5">
               <div className="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
                 <ShieldAlert className="w-6 h-6" aria-hidden="true" />
               </div>
@@ -869,7 +912,7 @@ export function AdminPage() {
                   {t.admin.deniedDescription}
                 </p>
               </div>
-              <div className="rounded-lg bg-[#F1F5F9] border border-slate-200 p-4 text-xs space-y-1.5">
+              <div className="rounded-xl bg-white/70 border border-slate-200/80 p-4 text-xs space-y-1.5">
                 <p className="text-[#0F172A]">
                   <span className="font-semibold">{t.admin.signedInAs}:</span>{' '}
                   {user.email || '-'}
@@ -882,7 +925,7 @@ export function AdminPage() {
               <button
                 type="button"
                 onClick={() => void signOutAdmin()}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#0B1428] hover:bg-[#142B4D] rounded-lg transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#0B1428] hover:bg-[#142B4D] rounded-xl transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" aria-hidden="true" />
                 <span>{t.admin.signOut}</span>
@@ -894,7 +937,7 @@ export function AdminPage() {
           {authReady && adminCheckReady && user && isAdmin && (
             <div className="space-y-6">
               {/* Account & Firestore Seed Banner */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              <div className="liquid-glass-light rounded-2xl p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B]">
                     <span className="inline-flex items-center gap-1 font-semibold text-[#2563EB]">
@@ -924,7 +967,7 @@ export function AdminPage() {
                     type="button"
                     onClick={() => void handleSeedData()}
                     disabled={busyAction}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg transition-colors cursor-pointer disabled:opacity-60 shrink-0"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl transition-colors cursor-pointer disabled:opacity-60 shrink-0 shadow-sm"
                   >
                     <RefreshCw
                       className={`w-4 h-4 ${busyAction ? 'animate-spin' : ''}`}
@@ -938,10 +981,10 @@ export function AdminPage() {
               {statusMessage && (
                 <div
                   role="status"
-                  className={`rounded-xl border px-4 py-3 text-sm flex items-center justify-between gap-3 ${
+                  className={`rounded-2xl border backdrop-blur-md px-4 py-3 text-sm flex items-center justify-between gap-3 ${
                     statusMessage.type === 'success'
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                      : 'bg-red-50 border-red-200 text-red-800'
+                      ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900'
+                      : 'bg-red-50/90 border-red-200 text-red-800'
                   }`}
                 >
                   <span>{statusMessage.text}</span>
@@ -956,11 +999,12 @@ export function AdminPage() {
               )}
 
               {/* Navigation Tabs */}
-              <div className="bg-white border border-slate-200 rounded-xl p-1.5 overflow-x-auto">
+              <div className="liquid-glass-control rounded-2xl p-1.5 overflow-x-auto">
                 <div className="flex items-center gap-1 min-w-max">
                   {(
                     [
                       {id: 'home', label: t.admin.tabs.home, icon: LayoutDashboard},
+                      {id: 'media', label: t.admin.tabs.media, icon: ImageIcon},
                       {id: 'projects', label: t.admin.tabs.projects, icon: FolderKanban},
                       {id: 'products', label: t.admin.tabs.products, icon: Package},
                       {id: 'insights', label: t.admin.tabs.insights, icon: Newspaper},
@@ -986,10 +1030,10 @@ export function AdminPage() {
                           setActiveTab(tab.id);
                           setConfirmDeleteKey(null);
                         }}
-                        className={`inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
+                        className={`inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap ${
                           active
-                            ? 'bg-[#0B1428] text-white'
-                            : 'text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50'
+                            ? 'bg-[#0B1428] text-white shadow-sm'
+                            : 'text-[#64748B] hover:text-[#0F172A] hover:bg-white/60'
                         }`}
                       >
                         <Icon className="w-4 h-4" aria-hidden="true" />
@@ -1005,9 +1049,9 @@ export function AdminPage() {
                 <div className="space-y-8">
                   <form
                     onSubmit={(e) => void handleSaveHomeSettings(e)}
-                    className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6"
+                    className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
                   >
-                    <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div className="flex items-center justify-between gap-4 border-b border-slate-200/70 pb-4">
                       <h2 className="font-display text-xl font-bold text-[#0F172A]">
                         {t.admin.homeForm.sectionCopyTitle}
                       </h2>
@@ -1217,7 +1261,7 @@ export function AdminPage() {
                   </form>
 
                   {/* Featured Sections Manager */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6">
+                  <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6">
                     <div>
                       <h2 className="font-display text-xl font-bold text-[#0F172A]">
                         {t.admin.homeForm.featuredManagerTitle}
@@ -1393,13 +1437,245 @@ export function AdminPage() {
                 </div>
               )}
 
+              {/* TAB 1B: SITE IMAGES & MEDIA */}
+              {activeTab === 'media' && (
+                <div className="space-y-8">
+                  {/* Global Logo & Hero Showcase */}
+                  <form
+                    onSubmit={(e) => void handleSaveHomeSettings(e)}
+                    className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/70 pb-4">
+                      <div>
+                        <h2 className="font-display text-xl font-bold text-[#0F172A]">
+                          {t.admin.mediaTab.globalTitle}
+                        </h2>
+                        <p className="mt-1 text-xs sm:text-sm text-[#64748B] max-w-2xl">
+                          {t.admin.mediaTab.globalSubtitle}
+                        </p>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={busyAction}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl transition-colors cursor-pointer disabled:opacity-60 shadow-sm shrink-0"
+                      >
+                        <Check className="w-4 h-4" aria-hidden="true" />
+                        <span>
+                          {busyAction
+                            ? t.admin.savingButton
+                            : t.admin.mediaTab.saveGlobalButton}
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <ImagePickerField
+                        label={t.admin.mediaTab.brandLogoLabel}
+                        value={homeDraft.brandLogoUrl}
+                        onChange={(next) =>
+                          setHomeDraft({...homeDraft, brandLogoUrl: next})
+                        }
+                        defaultValue={DEFAULT_BRAND_LOGO_URL}
+                        language={language}
+                        maxDimension={420}
+                        maxChars={90000}
+                        aspectClass="aspect-square max-w-[180px] mx-auto"
+                        previewFit="contain"
+                        helperText={t.admin.mediaTab.brandLogoHelper}
+                        labels={t.admin.imagePicker}
+                      />
+
+                      <ImagePickerField
+                        label={t.admin.mediaTab.heroImageLabel}
+                        value={homeDraft.heroImageUrl}
+                        onChange={(next) =>
+                          setHomeDraft({...homeDraft, heroImageUrl: next})
+                        }
+                        defaultValue={DEFAULT_HERO_IMAGE_URL}
+                        language={language}
+                        maxDimension={1080}
+                        maxChars={220000}
+                        aspectClass="aspect-[16/10]"
+                        helperText={t.admin.mediaTab.heroImageHelper}
+                        labels={t.admin.imagePicker}
+                      />
+                    </div>
+                  </form>
+
+                  {/* Projects Photos */}
+                  <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
+                    <h2 className="font-display text-xl font-bold text-[#0F172A]">
+                      {t.admin.mediaTab.projectsSectionTitle} ({projects.length})
+                    </h2>
+                    {projects.length === 0 ? (
+                      <p className="text-sm text-[#64748B]">{t.admin.mediaTab.emptyItems}</p>
+                    ) : (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                        {projects.map((proj) => {
+                          const draftKey = `proj:${proj.id}`;
+                          const currentVal = getMediaDraft(draftKey, proj.image);
+                          const isDirty = currentVal !== proj.image;
+                          return (
+                            <div
+                              key={proj.id}
+                              className="rounded-2xl border border-slate-200/80 bg-white/60 p-4 sm:p-5 space-y-4"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-[#2563EB]">
+                                    {localize(proj.categoryLabel)} · {proj.year}
+                                  </p>
+                                  <p className="font-display text-base font-bold text-[#0F172A] truncate">
+                                    {localize(proj.title)}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={busyAction || !isDirty}
+                                  onClick={() => void handleSaveProjectImage(proj)}
+                                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition-colors shrink-0 ${
+                                    isDirty
+                                      ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white cursor-pointer shadow-sm'
+                                      : 'bg-slate-200/70 text-[#64748B] cursor-not-allowed'
+                                  }`}
+                                >
+                                  <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                                  <span>{t.admin.mediaTab.saveItemPhotoButton}</span>
+                                </button>
+                              </div>
+                              <ImagePickerField
+                                label={t.admin.fields.image}
+                                value={currentVal}
+                                onChange={(next) => setMediaDraft(draftKey, next)}
+                                language={language}
+                                labels={t.admin.imagePicker}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Digital Products Photos */}
+                  <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
+                    <h2 className="font-display text-xl font-bold text-[#0F172A]">
+                      {t.admin.mediaTab.productsSectionTitle} ({products.length})
+                    </h2>
+                    {products.length === 0 ? (
+                      <p className="text-sm text-[#64748B]">{t.admin.mediaTab.emptyItems}</p>
+                    ) : (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                        {products.map((prod) => {
+                          const draftKey = `prod:${prod.id}`;
+                          const currentVal = getMediaDraft(draftKey, prod.image);
+                          const isDirty = currentVal !== prod.image;
+                          return (
+                            <div
+                              key={prod.id}
+                              className="rounded-2xl border border-slate-200/80 bg-white/60 p-4 sm:p-5 space-y-4"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-[#2563EB]">
+                                    {localize(prod.categoryLabel)}
+                                  </p>
+                                  <p className="font-display text-base font-bold text-[#0F172A] truncate">
+                                    {prod.name}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={busyAction || !isDirty}
+                                  onClick={() => void handleSaveProductImage(prod)}
+                                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition-colors shrink-0 ${
+                                    isDirty
+                                      ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white cursor-pointer shadow-sm'
+                                      : 'bg-slate-200/70 text-[#64748B] cursor-not-allowed'
+                                  }`}
+                                >
+                                  <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                                  <span>{t.admin.mediaTab.saveItemPhotoButton}</span>
+                                </button>
+                              </div>
+                              <ImagePickerField
+                                label={t.admin.fields.image}
+                                value={currentVal}
+                                onChange={(next) => setMediaDraft(draftKey, next)}
+                                language={language}
+                                labels={t.admin.imagePicker}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Insights Article Cover Photos */}
+                  <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
+                    <h2 className="font-display text-xl font-bold text-[#0F172A]">
+                      {t.admin.mediaTab.insightsSectionTitle} ({articles.length})
+                    </h2>
+                    {articles.length === 0 ? (
+                      <p className="text-sm text-[#64748B]">{t.admin.mediaTab.emptyItems}</p>
+                    ) : (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                        {articles.map((art) => {
+                          const draftKey = `art:${art.id}`;
+                          const currentVal = getMediaDraft(draftKey, art.image);
+                          const isDirty = currentVal !== art.image;
+                          return (
+                            <div
+                              key={art.id}
+                              className="rounded-2xl border border-slate-200/80 bg-white/60 p-4 sm:p-5 space-y-4"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-[#2563EB]">
+                                    {localize(art.categoryLabel)}
+                                  </p>
+                                  <p className="font-display text-base font-bold text-[#0F172A] truncate">
+                                    {localize(art.title)}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={busyAction || !isDirty}
+                                  onClick={() => void handleSaveArticleImage(art)}
+                                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition-colors shrink-0 ${
+                                    isDirty
+                                      ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white cursor-pointer shadow-sm'
+                                      : 'bg-slate-200/70 text-[#64748B] cursor-not-allowed'
+                                  }`}
+                                >
+                                  <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                                  <span>{t.admin.mediaTab.saveItemPhotoButton}</span>
+                                </button>
+                              </div>
+                              <ImagePickerField
+                                label={t.admin.fields.image}
+                                value={currentVal}
+                                onChange={(next) => setMediaDraft(draftKey, next)}
+                                language={language}
+                                labels={t.admin.imagePicker}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* TAB 2: PROJECTS */}
               {activeTab === 'projects' && (
                 <div className="space-y-6">
                   {editingProject ? (
                     <form
                       onSubmit={(e) => void handleSaveProject(e)}
-                      className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6"
+                      className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
@@ -1555,42 +1831,17 @@ export function AdminPage() {
                           />
                         </div>
 
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className={labelClass}>{t.admin.fields.image}</label>
-                            <select
-                              value={
-                                ASSET_IMAGE_OPTIONS.some((o) => o.value === editingProject.image)
-                                  ? editingProject.image
-                                  : ''
-                              }
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  setEditingProject({...editingProject, image: e.target.value});
-                                }
-                              }}
-                              className={inputClass}
-                            >
-                              <option value="">-- Custom URL --</option>
-                              {ASSET_IMAGE_OPTIONS.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className={labelClass}>Image URL / Path</label>
-                            <input
-                              type="text"
-                              required
-                              value={editingProject.image}
-                              onChange={(e) =>
-                                setEditingProject({...editingProject, image: e.target.value})
-                              }
-                              className={inputClass}
-                            />
-                          </div>
+                        <div className="md:col-span-2">
+                          <ImagePickerField
+                            label={t.admin.fields.image}
+                            value={editingProject.image}
+                            onChange={(next) =>
+                              setEditingProject({...editingProject, image: next})
+                            }
+                            defaultValue={PRESET_IMAGE_ASSETS[2].value}
+                            language={language}
+                            labels={t.admin.imagePicker}
+                          />
                         </div>
 
                         <div>
@@ -1751,7 +2002,7 @@ export function AdminPage() {
                       </div>
                     </form>
                   ) : (
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-5">
+                    <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
                       <div className="flex flex-wrap items-center justify-between gap-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
                           {t.admin.tabs.projects} ({projects.length})
@@ -1759,14 +2010,14 @@ export function AdminPage() {
                         <button
                           type="button"
                           onClick={() => startEditProject(createEmptyProject(), true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl cursor-pointer shadow-sm"
                         >
                           <Plus className="w-4 h-4" aria-hidden="true" />
                           <span>{t.admin.createNewButton}</span>
                         </button>
                       </div>
 
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-slate-200/70">
                         {projects.map((proj) => {
                           const delKey = `proj-${proj.id}`;
                           return (
@@ -1774,28 +2025,37 @@ export function AdminPage() {
                               key={proj.id}
                               className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                             >
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] mb-1">
-                                  <span className="font-semibold text-[#2563EB]">
-                                    {proj.featured ? t.admin.featuredBadge : t.admin.notFeaturedLabel}
-                                  </span>
-                                  <span>·</span>
-                                  <span>{localize(proj.categoryLabel)}</span>
-                                  <span>·</span>
-                                  <span className="font-mono-tabular">{proj.year}</span>
-                                  {proj.isDemo && (
-                                    <>
-                                      <span>·</span>
-                                      <span>{t.common.demoLabel}</span>
-                                    </>
-                                  )}
+                              <div className="flex items-center gap-3.5 min-w-0">
+                                <div className="w-16 h-11 rounded-lg overflow-hidden bg-[#0B1428] shrink-0 border border-slate-200/80">
+                                  <SafeImage
+                                    src={proj.image}
+                                    alt={localize(proj.imageAlt)}
+                                    className="w-full h-full object-cover"
+                                  />
                                 </div>
-                                <p className="font-display text-base font-bold text-[#0F172A] truncate">
-                                  {localize(proj.title)}
-                                </p>
-                                <p className="text-xs text-[#64748B] line-clamp-1">
-                                  {localize(proj.shortDescription)}
-                                </p>
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] mb-1">
+                                    <span className="font-semibold text-[#2563EB]">
+                                      {proj.featured ? t.admin.featuredBadge : t.admin.notFeaturedLabel}
+                                    </span>
+                                    <span>·</span>
+                                    <span>{localize(proj.categoryLabel)}</span>
+                                    <span>·</span>
+                                    <span className="font-mono-tabular">{proj.year}</span>
+                                    {proj.isDemo && (
+                                      <>
+                                        <span>·</span>
+                                        <span>{t.common.demoLabel}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                  <p className="font-display text-base font-bold text-[#0F172A] truncate">
+                                    {localize(proj.title)}
+                                  </p>
+                                  <p className="text-xs text-[#64748B] line-clamp-1">
+                                    {localize(proj.shortDescription)}
+                                  </p>
+                                </div>
                               </div>
 
                               <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -1854,7 +2114,7 @@ export function AdminPage() {
                   {editingProduct ? (
                     <form
                       onSubmit={(e) => void handleSaveProduct(e)}
-                      className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6"
+                      className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
@@ -1976,42 +2236,17 @@ export function AdminPage() {
                           />
                         </div>
 
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className={labelClass}>{t.admin.fields.image}</label>
-                            <select
-                              value={
-                                ASSET_IMAGE_OPTIONS.some((o) => o.value === editingProduct.image)
-                                  ? editingProduct.image
-                                  : ''
-                              }
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  setEditingProduct({...editingProduct, image: e.target.value});
-                                }
-                              }}
-                              className={inputClass}
-                            >
-                              <option value="">-- Custom URL --</option>
-                              {ASSET_IMAGE_OPTIONS.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className={labelClass}>Image URL / Path</label>
-                            <input
-                              type="text"
-                              required
-                              value={editingProduct.image}
-                              onChange={(e) =>
-                                setEditingProduct({...editingProduct, image: e.target.value})
-                              }
-                              className={inputClass}
-                            />
-                          </div>
+                        <div className="md:col-span-2">
+                          <ImagePickerField
+                            label={t.admin.fields.image}
+                            value={editingProduct.image}
+                            onChange={(next) =>
+                              setEditingProduct({...editingProduct, image: next})
+                            }
+                            defaultValue={PRESET_IMAGE_ASSETS[2].value}
+                            language={language}
+                            labels={t.admin.imagePicker}
+                          />
                         </div>
 
                         <div>
@@ -2134,7 +2369,7 @@ export function AdminPage() {
                       </div>
                     </form>
                   ) : (
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-5">
+                    <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
                       <div className="flex flex-wrap items-center justify-between gap-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
                           {t.admin.tabs.products} ({products.length})
@@ -2142,14 +2377,14 @@ export function AdminPage() {
                         <button
                           type="button"
                           onClick={() => startEditProduct(createEmptyProduct(), true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl cursor-pointer shadow-sm"
                         >
                           <Plus className="w-4 h-4" aria-hidden="true" />
                           <span>{t.admin.createNewButton}</span>
                         </button>
                       </div>
 
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-slate-200/70">
                         {products.map((prod) => {
                           const delKey = `prod-${prod.id}`;
                           return (
@@ -2157,22 +2392,31 @@ export function AdminPage() {
                               key={prod.id}
                               className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                             >
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] mb-1">
-                                  <span className="font-semibold text-[#2563EB]">
-                                    {prod.featured ? t.admin.featuredBadge : t.admin.notFeaturedLabel}
-                                  </span>
-                                  <span>·</span>
-                                  <span>{localize(prod.categoryLabel)}</span>
-                                  <span>·</span>
-                                  <span>{localize(prod.status)}</span>
+                              <div className="flex items-center gap-3.5 min-w-0">
+                                <div className="w-16 h-11 rounded-lg overflow-hidden bg-[#0B1428] shrink-0 border border-slate-200/80">
+                                  <SafeImage
+                                    src={prod.image}
+                                    alt={localize(prod.imageAlt)}
+                                    className="w-full h-full object-cover"
+                                  />
                                 </div>
-                                <p className="font-display text-base font-bold text-[#0F172A] truncate">
-                                  {prod.name}
-                                </p>
-                                <p className="text-xs text-[#64748B] line-clamp-1">
-                                  {localize(prod.shortDescription)}
-                                </p>
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] mb-1">
+                                    <span className="font-semibold text-[#2563EB]">
+                                      {prod.featured ? t.admin.featuredBadge : t.admin.notFeaturedLabel}
+                                    </span>
+                                    <span>·</span>
+                                    <span>{localize(prod.categoryLabel)}</span>
+                                    <span>·</span>
+                                    <span>{localize(prod.status)}</span>
+                                  </div>
+                                  <p className="font-display text-base font-bold text-[#0F172A] truncate">
+                                    {prod.name}
+                                  </p>
+                                  <p className="text-xs text-[#64748B] line-clamp-1">
+                                    {localize(prod.shortDescription)}
+                                  </p>
+                                </div>
                               </div>
 
                               <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -2231,7 +2475,7 @@ export function AdminPage() {
                   {editingArticle ? (
                     <form
                       onSubmit={(e) => void handleSaveArticle(e)}
-                      className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6"
+                      className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
@@ -2404,42 +2648,17 @@ export function AdminPage() {
                           />
                         </div>
 
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className={labelClass}>{t.admin.fields.image}</label>
-                            <select
-                              value={
-                                ASSET_IMAGE_OPTIONS.some((o) => o.value === editingArticle.image)
-                                  ? editingArticle.image
-                                  : ''
-                              }
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  setEditingArticle({...editingArticle, image: e.target.value});
-                                }
-                              }}
-                              className={inputClass}
-                            >
-                              <option value="">-- Custom URL --</option>
-                              {ASSET_IMAGE_OPTIONS.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className={labelClass}>Image URL / Path</label>
-                            <input
-                              type="text"
-                              required
-                              value={editingArticle.image}
-                              onChange={(e) =>
-                                setEditingArticle({...editingArticle, image: e.target.value})
-                              }
-                              className={inputClass}
-                            />
-                          </div>
+                        <div className="md:col-span-2">
+                          <ImagePickerField
+                            label={t.admin.fields.image}
+                            value={editingArticle.image}
+                            onChange={(next) =>
+                              setEditingArticle({...editingArticle, image: next})
+                            }
+                            defaultValue={PRESET_IMAGE_ASSETS[5].value}
+                            language={language}
+                            labels={t.admin.imagePicker}
+                          />
                         </div>
 
                         <div>
@@ -2542,7 +2761,7 @@ export function AdminPage() {
                       </div>
                     </form>
                   ) : (
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-5">
+                    <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
                       <div className="flex flex-wrap items-center justify-between gap-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
                           {t.admin.tabs.insights} ({articles.length})
@@ -2550,14 +2769,14 @@ export function AdminPage() {
                         <button
                           type="button"
                           onClick={() => startEditArticle(createEmptyArticle(), true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl cursor-pointer shadow-sm"
                         >
                           <Plus className="w-4 h-4" aria-hidden="true" />
                           <span>{t.admin.createNewButton}</span>
                         </button>
                       </div>
 
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-slate-200/70">
                         {articles.map((art) => {
                           const delKey = `art-${art.id}`;
                           return (
@@ -2565,22 +2784,31 @@ export function AdminPage() {
                               key={art.id}
                               className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                             >
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] mb-1">
-                                  <span className="font-semibold text-[#2563EB]">
-                                    {art.featured ? t.admin.featuredBadge : t.admin.notFeaturedLabel}
-                                  </span>
-                                  <span>·</span>
-                                  <span>{localize(art.categoryLabel)}</span>
-                                  <span>·</span>
-                                  <span>{localize(art.publishedLabel)}</span>
+                              <div className="flex items-center gap-3.5 min-w-0">
+                                <div className="w-16 h-11 rounded-lg overflow-hidden bg-[#0B1428] shrink-0 border border-slate-200/80">
+                                  <SafeImage
+                                    src={art.image}
+                                    alt={localize(art.imageAlt)}
+                                    className="w-full h-full object-cover"
+                                  />
                                 </div>
-                                <p className="font-display text-base font-bold text-[#0F172A] truncate">
-                                  {localize(art.title)}
-                                </p>
-                                <p className="text-xs text-[#64748B] line-clamp-1">
-                                  {localize(art.excerpt)}
-                                </p>
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] mb-1">
+                                    <span className="font-semibold text-[#2563EB]">
+                                      {art.featured ? t.admin.featuredBadge : t.admin.notFeaturedLabel}
+                                    </span>
+                                    <span>·</span>
+                                    <span>{localize(art.categoryLabel)}</span>
+                                    <span>·</span>
+                                    <span>{localize(art.publishedLabel)}</span>
+                                  </div>
+                                  <p className="font-display text-base font-bold text-[#0F172A] truncate">
+                                    {localize(art.title)}
+                                  </p>
+                                  <p className="text-xs text-[#64748B] line-clamp-1">
+                                    {localize(art.excerpt)}
+                                  </p>
+                                </div>
                               </div>
 
                               <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -2640,7 +2868,7 @@ export function AdminPage() {
                   {editingDivision ? (
                     <form
                       onSubmit={(e) => void handleSaveDivision(e)}
-                      className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6"
+                      className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
@@ -2848,7 +3076,7 @@ export function AdminPage() {
                       </div>
                     </form>
                   ) : (
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-4">
+                    <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-4">
                       <h2 className="font-display text-xl font-bold text-[#0F172A]">
                         {t.nav.divisions} ({divisions.length})
                       </h2>
@@ -2856,7 +3084,7 @@ export function AdminPage() {
                         {divisions.map((div) => (
                           <div
                             key={div.id}
-                            className="border border-slate-200 rounded-xl p-4 flex items-start justify-between gap-4"
+                            className="border border-slate-200/80 bg-white/60 rounded-xl p-4 flex items-start justify-between gap-4"
                           >
                             <div>
                               <p className="font-display text-base font-bold text-[#0F172A]">
@@ -2886,7 +3114,7 @@ export function AdminPage() {
                   {editingService ? (
                     <form
                       onSubmit={(e) => void handleSaveService(e)}
-                      className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6"
+                      className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
@@ -3084,7 +3312,7 @@ export function AdminPage() {
                       </div>
                     </form>
                   ) : (
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-5">
+                    <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-5">
                       <div className="flex flex-wrap items-center justify-between gap-4">
                         <h2 className="font-display text-xl font-bold text-[#0F172A]">
                           {t.nav.services} ({services.length})
@@ -3092,14 +3320,14 @@ export function AdminPage() {
                         <button
                           type="button"
                           onClick={() => startEditService(createEmptyService(), true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-lg cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl cursor-pointer shadow-sm"
                         >
                           <Plus className="w-4 h-4" aria-hidden="true" />
                           <span>{t.admin.createNewButton}</span>
                         </button>
                       </div>
 
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-slate-200/70">
                         {services.map((svc) => {
                           const delKey = `svc-${svc.id}`;
                           return (
@@ -3176,8 +3404,8 @@ export function AdminPage() {
 
               {/* TAB 6: INBOX MESSAGES */}
               {activeTab === 'messages' && (
-                <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 space-y-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
                     <div>
                       <h2 className="font-display text-xl font-bold text-[#0F172A]">
                         {t.admin.messagesTab.title} ({contactMessages.length})
@@ -3387,11 +3615,11 @@ export function AdminPage() {
               {activeTab === 'admins' && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                   <div className="lg:col-span-7 space-y-6">
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-3">
+                    <div className="liquid-glass-light rounded-2xl p-6 space-y-3">
                       <h2 className="font-display text-lg font-bold text-[#0F172A]">
                         {t.admin.adminsTab.primaryTitle}
                       </h2>
-                      <div className="rounded-lg bg-[#F1F5F9] border border-slate-200 p-4 text-sm space-y-1">
+                      <div className="rounded-xl bg-white/70 border border-slate-200/80 p-4 text-sm space-y-1">
                         <p className="font-semibold text-[#0F172A]">{BOOTSTRAPPED_ADMIN_EMAIL}</p>
                         <p className="text-xs text-[#64748B] font-mono-tabular break-all">
                           {t.admin.uidLabel}: {user.uid}
@@ -3399,14 +3627,14 @@ export function AdminPage() {
                       </div>
                     </div>
 
-                    <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+                    <div className="liquid-glass-light rounded-2xl p-6 space-y-4">
                       <h2 className="font-display text-lg font-bold text-[#0F172A]">
                         {t.admin.adminsTab.additionalTitle} ({admins.length})
                       </h2>
                       {admins.length === 0 ? (
                         <p className="text-sm text-[#64748B]">{t.admin.adminsTab.emptyAdditional}</p>
                       ) : (
-                        <div className="divide-y divide-slate-100">
+                        <div className="divide-y divide-slate-200/70">
                           {admins.map((item) => {
                             const delKey = `adm-${item.uid}`;
                             return (
@@ -3466,7 +3694,7 @@ export function AdminPage() {
 
                   <form
                     onSubmit={(e) => void handleAddAdmin(e)}
-                    className="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-6 space-y-4 self-start"
+                    className="lg:col-span-5 liquid-glass-light rounded-2xl p-6 space-y-4 self-start"
                   >
                     <h2 className="font-display text-lg font-bold text-[#0F172A]">
                       {t.admin.adminsTab.addTitle}

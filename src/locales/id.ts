@@ -346,6 +346,7 @@ export const idLocale = {
     createNewButton: 'Tambah Baru',
     tabs: {
       home: 'Beranda & Unggulan',
+      media: 'Foto & Gambar',
       projects: 'Proyek',
       products: 'Produk Digital',
       insights: 'Wawasan',
@@ -457,6 +458,37 @@ export const idLocale = {
       receivedAtLabel: 'Diterima',
       replyEmailButton: 'Balas via Email',
       statusUpdateLabel: 'Ubah Status',
+    },
+    imagePicker: {
+      uploadButton: 'Unggah dari Perangkat',
+      compressing: 'Memproses gambar...',
+      presetLabel: 'Pilih Aset Bawaan',
+      customOption: '-- URL Kustom / Unggahan --',
+      urlLabel: 'URL atau Path Gambar',
+      urlPlaceholder: 'https://... atau /src/assets/images/...',
+      resetDefault: 'Reset Default',
+      sourcePreset: 'Preset Bawaan',
+      sourceUploaded: 'Foto Unggahan',
+      sourceCustom: 'URL Kustom',
+      invalidWarning: 'Masukkan URL https://, path /..., atau unggah gambar raster (PNG/JPG/WebP/GIF).',
+      previewAlt: 'Pratinjau gambar terpilih',
+    },
+    mediaTab: {
+      globalTitle: 'Logo Brand & Foto Utama Beranda',
+      globalSubtitle:
+        'Logo tampil di Navbar, Footer, kartu identitas Beranda, dan halaman Tentang Kami. Gambar Hero tampil pada bingkai utama Beranda.',
+      brandLogoLabel: 'Logo Utama DILUX GROUP',
+      brandLogoHelper:
+        'Disarankan rasio persegi 1:1 (PNG/JPG/WebP). Otomatis dikompresi agar ringan dimuat.',
+      heroImageLabel: 'Foto Utama Hero Beranda',
+      heroImageHelper:
+        'Disarankan rasio landscape 16:9 atau 4:3 untuk bingkai showcase utama di Beranda.',
+      saveGlobalButton: 'Simpan Logo & Foto Utama',
+      projectsSectionTitle: 'Foto Proyek & Portofolio',
+      productsSectionTitle: 'Foto Produk Digital',
+      insightsSectionTitle: 'Foto Sampul Artikel Wawasan',
+      saveItemPhotoButton: 'Simpan Foto Ini',
+      emptyItems: 'Belum ada item pada kategori ini.',
     },
   },
 } as const;

@@ -1,12 +1,14 @@
 import {Menu, X} from 'lucide-react';
 import {useEffect, useState} from 'react';
 import {Link, NavLink, useLocation} from 'react-router-dom';
+import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
-import {OFFICIAL_CONTACT} from '../data/contact';
 import {LanguageSwitcher} from './LanguageSwitcher';
+import {SafeImage} from './SafeImage';
 
 export function Navbar() {
   const {t} = useLanguage();
+  const {homeSettings} = useFirebase();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -26,18 +28,18 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#0B1428]">
+    <header className="sticky top-0 z-40 w-full liquid-glass-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4 lg:gap-8">
         <Link
           to="/"
           className="inline-flex items-center gap-3 whitespace-nowrap shrink-0 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#60A5FA] rounded-md"
         >
           <span className="w-9 h-9 rounded-lg overflow-hidden bg-[#0B1428] shrink-0 flex items-center justify-center">
-            <img
-              src={OFFICIAL_CONTACT.logoPath}
+            <SafeImage
+              src={homeSettings.brandLogoUrl}
               alt="DILUX GROUP Logo"
               className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
+              eager
             />
           </span>
           <span className="font-display text-base sm:text-lg font-bold tracking-tight text-white whitespace-nowrap">
@@ -56,9 +58,7 @@ export function Navbar() {
               end={item.end}
               className={({isActive}) =>
                 `relative py-1 text-sm font-medium transition-colors duration-150 whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#60A5FA] ${
-                  isActive
-                    ? 'text-white'
-                    : 'text-slate-300 hover:text-white'
+                  isActive ? 'text-white' : 'text-slate-300 hover:text-white'
                 }`
               }
             >
@@ -68,7 +68,7 @@ export function Navbar() {
                   {isActive && (
                     <span
                       aria-hidden="true"
-                      className="absolute left-0 right-0 -bottom-[18px] h-0.5 bg-[#2563EB]"
+                      className="absolute left-0 right-0 -bottom-[18px] h-0.5 bg-gradient-to-r from-[#60A5FA] via-[#2563EB] to-[#60A5FA]"
                     />
                   )}
                 </>
@@ -84,7 +84,7 @@ export function Navbar() {
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-expanded={mobileOpen}
             aria-label={mobileOpen ? t.nav.menuClose : t.nav.menuOpen}
-            className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-[#142B4D] bg-[#142B4D]/60 text-white hover:bg-[#142B4D] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#60A5FA]"
+            className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl liquid-glass-control-dark text-white hover:bg-white/15 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#60A5FA]"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -92,7 +92,7 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#142B4D] bg-[#0B1428]">
+        <div className="lg:hidden border-t border-white/10 bg-[#0B1428]/90 backdrop-blur-xl">
           <nav
             aria-label="Mobile navigation"
             className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-1"
@@ -104,10 +104,10 @@ export function Navbar() {
                 end={item.end}
                 onClick={() => setMobileOpen(false)}
                 className={({isActive}) =>
-                  `px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  `px-3.5 py-3 rounded-xl text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-[#142B4D] text-[#60A5FA]'
-                      : 'text-slate-200 hover:bg-[#142B4D]/60 hover:text-white'
+                      ? 'bg-[#2563EB]/25 text-[#60A5FA] border border-white/15'
+                      : 'text-slate-200 hover:bg-white/10 hover:text-white'
                   }`
                 }
               >

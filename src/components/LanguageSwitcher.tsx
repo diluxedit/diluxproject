@@ -12,10 +12,8 @@ export function LanguageSwitcher({className = '', dark = false}: LanguageSwitche
     <div
       role="group"
       aria-label="Language switcher"
-      className={`inline-flex items-center p-0.5 rounded-lg border shrink-0 ${
-        dark
-          ? 'bg-[#142B4D] border-[#1E3A5F]'
-          : 'bg-[#F1F5F9] border-slate-200'
+      className={`inline-flex items-center p-0.5 rounded-xl shrink-0 ${
+        dark ? 'liquid-glass-control-dark' : 'liquid-glass-control'
       } ${className}`}
     >
       <button

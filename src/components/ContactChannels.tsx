@@ -49,10 +49,10 @@ export function ContactChannels({compact = false}: {compact?: boolean}) {
             href={channel.href}
             target={channel.external ? '_blank' : undefined}
             rel={channel.external ? 'noopener noreferrer' : undefined}
-            className="group bg-white border border-slate-200 rounded-xl p-5 flex items-start justify-between gap-4 transition-colors duration-150 hover:border-[#2563EB] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB]"
+            className="group liquid-glass-light liquid-glass-light-interactive rounded-2xl p-5 flex items-start justify-between gap-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB]"
           >
             <div className="flex items-start gap-4 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-[#0B1428] text-[#60A5FA] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#0B1428] text-[#60A5FA] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5" aria-hidden="true" />
               </div>
               <div className="min-w-0">

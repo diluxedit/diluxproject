@@ -1,19 +1,22 @@
 import {ArrowRight} from 'lucide-react';
 import {Button} from '../components/Button';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
+import {SafeImage} from '../components/SafeImage';
 import {SectionHeader} from '../components/SectionHeader';
+import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
-import {OFFICIAL_CONTACT} from '../data/contact';
 
 export function AboutPage() {
   const {t} = useLanguage();
+  const {homeSettings} = useFirebase();
 
   return (
     <>
       <PageHead title={t.about.pageTitle} description={t.about.pageDescription} />
 
       {/* Page Banner */}
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.about.headerKicker}
@@ -28,10 +31,10 @@ export function AboutPage() {
       </section>
 
       {/* Company Overview + Brand Philosophy */}
-      <section className="py-16 sm:py-20 bg-white">
+      <section className="py-16 sm:py-20 dilux-glass-canvas-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
           <div className="lg:col-span-7 space-y-8">
-            <div>
+            <RevealSection delayIndex={0}>
               <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
                 {t.about.overviewTitle}
               </h2>
@@ -41,18 +44,18 @@ export function AboutPage() {
               <p className="mt-3 text-base text-[#64748B] leading-relaxed">
                 {t.about.overviewBody2}
               </p>
-            </div>
+            </RevealSection>
 
-            <div className="pt-8 border-t border-slate-200">
+            <RevealSection delayIndex={1} className="pt-8 border-t border-slate-200/80">
               <h2 className="font-display text-2xl font-bold tracking-tight text-[#0F172A]">
                 {t.about.philosophyTitle}
               </h2>
               <p className="mt-3 text-base text-[#64748B] leading-relaxed">
                 {t.about.philosophyBody}
               </p>
-            </div>
+            </RevealSection>
 
-            <div className="pt-8 border-t border-slate-200">
+            <RevealSection delayIndex={2} className="pt-8 border-t border-slate-200/80">
               <p className="text-xs font-semibold tracking-wider text-[#2563EB] mb-2">
                 {t.about.founderKicker}
               </p>
@@ -65,17 +68,21 @@ export function AboutPage() {
               <p className="mt-3 text-base text-[#64748B] leading-relaxed">
                 {t.about.founderSummary}
               </p>
-            </div>
+            </RevealSection>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="rounded-xl bg-[#0B1428] border border-[#142B4D] p-8 sm:p-10 text-white text-center flex flex-col items-center">
-              <div className="w-32 h-32 rounded-xl overflow-hidden mb-5">
-                <img
-                  src={OFFICIAL_CONTACT.logoPath}
+          <RevealSection delayIndex={1} variant="scale" className="lg:col-span-5 relative">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-[#2563EB]/25 via-[#60A5FA]/15 to-[#0B1428]/20 blur-xl pointer-events-none"
+            />
+            <div className="relative rounded-2xl bg-[#0B1428]/90 backdrop-blur-2xl border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_22px_48px_-14px_rgba(11,20,40,0.45)] p-8 sm:p-10 text-white text-center flex flex-col items-center">
+              <div className="w-32 h-32 rounded-2xl overflow-hidden border border-white/20 shadow-lg mb-5">
+                <SafeImage
+                  src={homeSettings.brandLogoUrl}
                   alt="DILUX GROUP Official Brand Logo"
                   className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
+                  eager
                 />
               </div>
               <p className="font-display text-xl font-bold">{t.brand.name}</p>
@@ -92,14 +99,15 @@ export function AboutPage() {
                 <p className="mt-0.5 text-xs text-slate-300">{t.brand.founderRole}</p>
               </div>
             </div>
-          </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* Vision & Mission */}
-      <section className="py-16 sm:py-20 bg-[#F1F5F9]">
+      <section className="py-16 sm:py-20 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-5 bg-[#0B1428] text-white rounded-xl p-8 sm:p-10 flex flex-col justify-between">
+          <RevealSection delayIndex={0} variant="scale" className="lg:col-span-5 flex">
+            <div className="w-full dilux-glass-canvas-dark text-white rounded-2xl p-8 sm:p-10 flex flex-col justify-between border border-white/15 shadow-xl">
             <div>
               <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
                 {t.brand.name}
@@ -112,9 +120,11 @@ export function AboutPage() {
               </p>
             </div>
             <p className="mt-8 text-xs text-slate-400">{t.brand.tagline}</p>
-          </div>
+            </div>
+          </RevealSection>
 
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-xl p-8 sm:p-10">
+          <RevealSection delayIndex={1} variant="scale" className="lg:col-span-7 flex">
+            <div className="w-full liquid-glass-light rounded-2xl p-8 sm:p-10">
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A] mb-6">
               {t.about.missionTitle}
             </h2>
@@ -122,7 +132,7 @@ export function AboutPage() {
               {t.about.missionItems.map((item, idx) => (
                 <li
                   key={item}
-                  className="flex items-start gap-4 pb-4 border-b border-slate-100 last:border-b-0 last:pb-0"
+                  className="flex items-start gap-4 pb-4 border-b border-slate-200/70 last:border-b-0 last:pb-0"
                 >
                   <span className="font-mono-tabular text-sm font-semibold text-[#2563EB] shrink-0 pt-0.5">
                     {String(idx + 1).padStart(2, '0')}.
@@ -131,63 +141,66 @@ export function AboutPage() {
                 </li>
               ))}
             </ol>
-          </div>
+            </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* Core Values */}
-      <section className="py-16 sm:py-20 bg-white">
+      <section className="py-16 sm:py-20 dilux-glass-canvas-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader title={t.about.valuesTitle} />
+          <RevealSection>
+            <SectionHeader title={t.about.valuesTitle} />
+          </RevealSection>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {t.about.values.map((val, idx) => (
-              <div
-                key={val.title}
-                className="bg-[#F1F5F9] border border-slate-200 rounded-xl p-6 flex flex-col"
-              >
-                <span className="font-mono-tabular text-xs font-semibold text-[#2563EB] mb-3">
-                  {String(idx + 1).padStart(2, '0')}
-                </span>
-                <h3 className="font-display text-lg font-bold text-[#0F172A]">
-                  {val.title}
-                </h3>
-                <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
-                  {val.description}
-                </p>
-              </div>
+              <RevealSection key={val.title} delayIndex={idx} variant="scale" className="flex">
+                <div className="w-full liquid-glass-light liquid-glass-light-interactive rounded-2xl p-6 flex flex-col">
+                  <span className="font-mono-tabular text-xs font-semibold text-[#2563EB] mb-3">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="font-display text-lg font-bold text-[#0F172A]">
+                    {val.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
+                    {val.description}
+                  </p>
+                </div>
+              </RevealSection>
             ))}
           </div>
         </div>
       </section>
 
       {/* Our Approach */}
-      <section className="py-16 sm:py-20 bg-[#F1F5F9]">
+      <section className="py-16 sm:py-20 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title={t.about.approachTitle}
-            action={
-              <Button to="/divisions" variant="primary">
-                <span>{t.nav.divisions}</span>
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </Button>
-            }
-          />
+          <RevealSection>
+            <SectionHeader
+              title={t.about.approachTitle}
+              action={
+                <Button to="/divisions" variant="primary">
+                  <span>{t.nav.divisions}</span>
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Button>
+              }
+            />
+          </RevealSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {t.about.approachSteps.map((step) => (
-              <div
-                key={step.step}
-                className="bg-white border border-slate-200 rounded-xl p-7"
-              >
-                <span className="font-mono-tabular text-xs font-semibold text-[#2563EB]">
-                  {step.step}
-                </span>
-                <h3 className="mt-2 font-display text-lg font-bold text-[#0F172A]">
-                  {step.title}
-                </h3>
-                <p className="mt-2.5 text-sm text-[#64748B] leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
+            {t.about.approachSteps.map((step, idx) => (
+              <RevealSection key={step.step} delayIndex={idx} variant="scale" className="flex">
+                <div className="w-full liquid-glass-light liquid-glass-light-interactive rounded-2xl p-7">
+                  <span className="font-mono-tabular text-xs font-semibold text-[#2563EB]">
+                    {step.step}
+                  </span>
+                  <h3 className="mt-2 font-display text-lg font-bold text-[#0F172A]">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2.5 text-sm text-[#64748B] leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </RevealSection>
             ))}
           </div>
         </div>

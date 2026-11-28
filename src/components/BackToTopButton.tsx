@@ -32,7 +32,7 @@ export function BackToTopButton() {
       type="button"
       onClick={scrollToTop}
       aria-label={t.nav.backToTop}
-      className="fixed bottom-6 right-6 z-30 w-11 h-11 rounded-lg bg-[#0B1428] text-white border border-white/15 shadow-md hover:bg-[#142B4D] transition-colors flex items-center justify-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB]"
+      className="fixed bottom-6 right-6 z-30 w-11 h-11 rounded-xl liquid-glass-dark liquid-glass-dark-interactive text-white flex items-center justify-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB]"
     >
       <ArrowUp className="w-5 h-5" aria-hidden="true" />
     </button>

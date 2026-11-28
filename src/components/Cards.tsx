@@ -11,10 +11,10 @@ export function DivisionCard({division}: {division: Division}) {
   const focusItems = division.focusAreas[language];
 
   return (
-    <article className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 flex flex-col justify-between transition-colors duration-150 hover:border-[#2563EB]/40">
+    <article className="liquid-glass-light liquid-glass-light-interactive rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between gap-4 mb-5">
-          <div className="w-11 h-11 rounded-lg bg-[#0B1428] text-[#60A5FA] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-[#0B1428] text-[#60A5FA] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] flex items-center justify-center shrink-0">
             <DivisionIcon name={division.icon} className="w-5 h-5" />
           </div>
           <span className="text-xs font-medium text-[#64748B]">
@@ -65,10 +65,10 @@ export function ServiceCard({
   const serviceName = localize(service.name);
 
   return (
-    <article className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between transition-colors duration-150 hover:border-slate-300">
+    <article className="liquid-glass-light liquid-glass-light-interactive rounded-2xl p-6 flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-[#F1F5F9] text-[#0B1428] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#EEF3FA] border border-white text-[#0B1428] shadow-xs flex items-center justify-center shrink-0">
             <ServiceIcon name={service.icon} className="w-5 h-5" />
           </div>
           <span className="font-mono-tabular text-xs font-medium text-[#64748B]">
@@ -128,9 +128,9 @@ export function ProductCard({
   const {t, localize} = useLanguage();
 
   return (
-    <article className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between transition-colors duration-150 hover:border-slate-300">
+    <article className="liquid-glass-light liquid-glass-light-interactive rounded-2xl overflow-hidden flex flex-col justify-between">
       <div>
-        <div className="aspect-[4/3] w-full overflow-hidden bg-[#0B1428]">
+        <div className="aspect-[4/3] w-full overflow-hidden bg-[#0B1428] liquid-glass-sheen">
           <SafeImage
             src={product.image}
             alt={localize(product.imageAlt)}
@@ -186,9 +186,9 @@ export function ProjectCard({project}: {project: ProjectItem}) {
   const {t, localize} = useLanguage();
 
   return (
-    <article className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between transition-colors duration-150 hover:border-slate-300">
+    <article className="liquid-glass-light liquid-glass-light-interactive rounded-2xl overflow-hidden flex flex-col justify-between">
       <div>
-        <Link to={`/projects/${project.slug}`} className="block aspect-[4/3] w-full overflow-hidden bg-[#0B1428]">
+        <Link to={`/projects/${project.slug}`} className="block aspect-[4/3] w-full overflow-hidden bg-[#0B1428] liquid-glass-sheen">
           <SafeImage
             src={project.image}
             alt={localize(project.imageAlt)}
@@ -238,9 +238,9 @@ export function ArticleCard({article}: {article: ArticleItem}) {
   const {t, localize} = useLanguage();
 
   return (
-    <article className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between transition-colors duration-150 hover:border-slate-300">
+    <article className="liquid-glass-light liquid-glass-light-interactive rounded-2xl overflow-hidden flex flex-col justify-between">
       <div>
-        <Link to={`/insights/${article.slug}`} className="block aspect-[4/3] w-full overflow-hidden bg-[#0B1428]">
+        <Link to={`/insights/${article.slug}`} className="block aspect-[4/3] w-full overflow-hidden bg-[#0B1428] liquid-glass-sheen">
           <SafeImage
             src={article.image}
             alt={localize(article.imageAlt)}

@@ -4,6 +4,7 @@ import {Button} from '../components/Button';
 import {DivisionCard, ServiceCard} from '../components/Cards';
 import {DivisionIcon} from '../components/Icons';
 import {PageHead} from '../components/PageHead';
+import {RevealSection} from '../components/RevealSection';
 import {useFirebase} from '../context/FirebaseContext';
 import {useLanguage} from '../context/LanguageContext';
 import {filterServicesByDivision} from '../utils/filters';
@@ -43,7 +44,7 @@ export function DivisionsPage() {
           description={localize(selectedDivision.description)}
         />
 
-        <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+        <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Link
               to="/divisions"
@@ -54,7 +55,7 @@ export function DivisionsPage() {
             </Link>
 
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-[#142B4D] border border-white/15 text-[#60A5FA] flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-xl liquid-glass-dark text-[#60A5FA] flex items-center justify-center shrink-0">
                 <DivisionIcon name={selectedDivision.icon} className="w-6 h-6" />
               </div>
               <span className="text-sm font-medium text-slate-300">
@@ -71,57 +72,64 @@ export function DivisionsPage() {
           </div>
         </section>
 
-        <section className="py-16 sm:py-20 bg-white">
+        <section className="py-16 sm:py-20 dilux-glass-canvas-soft">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-7">
-              <h2 className="font-display text-2xl font-bold text-[#0F172A] mb-6">
-                {t.divisions.expertiseTitle}
-              </h2>
+              <RevealSection>
+                <h2 className="font-display text-2xl font-bold text-[#0F172A] mb-6">
+                  {t.divisions.expertiseTitle}
+                </h2>
+              </RevealSection>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {selectedDivision.focusAreas[language].map((area) => (
-                  <div
-                    key={area}
-                    className="flex items-center gap-3 p-4 rounded-xl bg-[#F1F5F9] border border-slate-200"
-                  >
-                    <Check className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
-                    <span className="text-sm font-medium text-[#0F172A]">{area}</span>
-                  </div>
+                {selectedDivision.focusAreas[language].map((area, idx) => (
+                  <RevealSection key={area} delayIndex={idx} variant="scale">
+                    <div className="flex items-center gap-3 p-4 rounded-2xl liquid-glass-light">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0" aria-hidden="true" />
+                      <span className="text-sm font-medium text-[#0F172A]">{area}</span>
+                    </div>
+                  </RevealSection>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-5 bg-[#0B1428] text-white rounded-xl p-8 flex flex-col justify-between">
-              <div>
-                <h2 className="font-display text-xl font-bold text-white">
-                  {t.divisions.methodologyTitle}
-                </h2>
-                <p className="mt-3 text-sm text-slate-300 leading-relaxed">
-                  {localize(selectedDivision.methodology)}
-                </p>
+            <RevealSection delayIndex={1} variant="scale" className="lg:col-span-5 flex">
+              <div className="w-full dilux-glass-canvas-dark border border-white/15 shadow-xl text-white rounded-2xl p-8 flex flex-col justify-between">
+                <div>
+                  <h2 className="font-display text-xl font-bold text-white">
+                    {t.divisions.methodologyTitle}
+                  </h2>
+                  <p className="mt-3 text-sm text-slate-300 leading-relaxed">
+                    {localize(selectedDivision.methodology)}
+                  </p>
+                </div>
+                <div className="mt-8">
+                  <Button
+                    to={`/contact?subject=${encodeURIComponent(selectedDivision.name)}`}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    <span>{t.divisions.discussDivision}</span>
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </div>
               </div>
-              <div className="mt-8">
-                <Button
-                  to={`/contact?subject=${encodeURIComponent(selectedDivision.name)}`}
-                  variant="primary"
-                  className="w-full"
-                >
-                  <span>{t.divisions.discussDivision}</span>
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Button>
-              </div>
-            </div>
+            </RevealSection>
           </div>
         </section>
 
         {relatedServices.length > 0 && (
-          <section className="py-16 sm:py-20 bg-[#F1F5F9]">
+          <section className="py-16 sm:py-20 dilux-glass-canvas-light">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#0F172A] mb-8">
-                {t.divisions.relatedServicesTitle}
-              </h2>
+              <RevealSection>
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#0F172A] mb-8">
+                  {t.divisions.relatedServicesTitle}
+                </h2>
+              </RevealSection>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relatedServices.map((service) => (
-                  <ServiceCard key={service.id} service={service} />
+                {relatedServices.map((service, idx) => (
+                  <RevealSection key={service.id} delayIndex={idx} variant="scale" className="flex">
+                    <ServiceCard service={service} />
+                  </RevealSection>
                 ))}
               </div>
             </div>
@@ -135,7 +143,7 @@ export function DivisionsPage() {
     <>
       <PageHead title={t.divisions.pageTitle} description={t.divisions.pageDescription} />
 
-      <section className="bg-[#0B1428] text-white py-14 sm:py-20">
+      <section className="dilux-glass-canvas-dark text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-semibold tracking-wider text-[#60A5FA] mb-3">
             {t.divisions.headerKicker}
@@ -149,10 +157,12 @@ export function DivisionsPage() {
         </div>
       </section>
 
-      <section className="py-16 sm:py-20 bg-[#F1F5F9]">
+      <section className="py-16 sm:py-20 dilux-glass-canvas-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {divisions.map((division) => (
-            <DivisionCard key={division.id} division={division} />
+          {divisions.map((division, idx) => (
+            <RevealSection key={division.id} delayIndex={idx} variant="scale" className="flex">
+              <DivisionCard division={division} />
+            </RevealSection>
           ))}
         </div>
       </section>

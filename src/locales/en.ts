@@ -345,6 +345,7 @@ export const enLocale = {
     createNewButton: 'Add New',
     tabs: {
       home: 'Home & Featured',
+      media: 'Site Images',
       projects: 'Projects',
       products: 'Digital Products',
       insights: 'Insights',
@@ -456,6 +457,37 @@ export const enLocale = {
       receivedAtLabel: 'Received',
       replyEmailButton: 'Reply via Email',
       statusUpdateLabel: 'Update Status',
+    },
+    imagePicker: {
+      uploadButton: 'Upload from Device',
+      compressing: 'Processing image...',
+      presetLabel: 'Choose Built-in Preset',
+      customOption: '-- Custom URL / Uploaded --',
+      urlLabel: 'Image URL or Path',
+      urlPlaceholder: 'https://... or /src/assets/images/...',
+      resetDefault: 'Reset Default',
+      sourcePreset: 'Built-in Preset',
+      sourceUploaded: 'Uploaded Photo',
+      sourceCustom: 'Custom URL',
+      invalidWarning: 'Enter an https:// URL, /... path, or upload a raster image (PNG/JPG/WebP/GIF).',
+      previewAlt: 'Selected image preview',
+    },
+    mediaTab: {
+      globalTitle: 'Brand Logo & Homepage Hero Photo',
+      globalSubtitle:
+        'The Brand Logo appears in the Navbar, Footer, Home identity card, and About page. The Hero Photo appears in the main Homepage showcase frame.',
+      brandLogoLabel: 'DILUX GROUP Primary Logo',
+      brandLogoHelper:
+        'Recommended 1:1 square ratio (PNG/JPG/WebP). Automatically resized for fast loading.',
+      heroImageLabel: 'Homepage Hero Showcase Photo',
+      heroImageHelper:
+        'Recommended 16:9 or 4:3 landscape image for the main Homepage showcase card.',
+      saveGlobalButton: 'Save Logo & Hero Photo',
+      projectsSectionTitle: 'Projects & Portfolio Photos',
+      productsSectionTitle: 'Digital Product Photos',
+      insightsSectionTitle: 'Insights Article Cover Photos',
+      saveItemPhotoButton: 'Save This Photo',
+      emptyItems: 'No entries available in this section yet.',
     },
   },
 } as const;
